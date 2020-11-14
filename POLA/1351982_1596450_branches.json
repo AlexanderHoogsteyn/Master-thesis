@@ -41,7 +41,7 @@
     },
     {
         "branchId":5,
-        "cableLength":0,
+        "cableLength":14,
         "cableType":"aansluitkabel",
         "downBusId":6,
         "type":"Cable",
@@ -57,7 +57,7 @@
     },
     {
         "branchId":7,
-        "cableLength":0,
+        "cableLength":1,
         "cableType":"aansluitkabel",
         "downBusId":8,
         "type":"Cable",
@@ -105,7 +105,7 @@
     },
     {
         "branchId":13,
-        "cableLength":0,
+        "cableLength":12,
         "cableType":"aansluitkabel",
         "downBusId":14,
         "type":"Cable",
@@ -121,7 +121,7 @@
     },
     {
         "branchId":15,
-        "cableLength":0,
+        "cableLength":16,
         "cableType":"aansluitkabel",
         "downBusId":16,
         "type":"Cable",
@@ -137,7 +137,7 @@
     },
     {
         "branchId":17,
-        "cableLength":0,
+        "cableLength":4,
         "cableType":"aansluitkabel",
         "downBusId":18,
         "type":"Cable",
@@ -161,7 +161,7 @@
     },
     {
         "branchId":20,
-        "cableLength":0,
+        "cableLength":6,
         "cableType":"aansluitkabel",
         "downBusId":21,
         "type":"Cable",
@@ -185,7 +185,7 @@
     },
     {
         "branchId":23,
-        "cableLength":0,
+        "cableLength":1,
         "cableType":"aansluitkabel",
         "downBusId":24,
         "type":"Cable",
@@ -201,7 +201,7 @@
     },
     {
         "branchId":25,
-        "cableLength":0,
+        "cableLength":7,
         "cableType":"aansluitkabel",
         "downBusId":26,
         "type":"Cable",
@@ -217,7 +217,7 @@
     },
     {
         "branchId":27,
-        "cableLength":0,
+        "cableLength":4,
         "cableType":"aansluitkabel",
         "downBusId":28,
         "type":"Cable",
@@ -257,7 +257,7 @@
     },
     {
         "branchId":32,
-        "cableLength":0,
+        "cableLength":14,
         "cableType":"aansluitkabel",
         "downBusId":33,
         "type":"Cable",
@@ -273,7 +273,7 @@
     },
     {
         "branchId":34,
-        "cableLength":0,
+        "cableLength":4,
         "cableType":"aansluitkabel",
         "downBusId":35,
         "type":"Cable",

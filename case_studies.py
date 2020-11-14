@@ -9,7 +9,7 @@ from phase_identification import *
 #           number of devices = 125
 #           feeder ID = 65028_84566
 #   CASE C: Average feeder
-#           number of devices =
+#           number of devices = 76
 #           feeder ID = 1830188_2181475
 ##################################################
 """
@@ -17,20 +17,22 @@ include_A = True
 include_B = True
 include_C = True
 voltage_noise = 0.00
-include_three_phase = True
-length = 48
+load_noise = 0.03   #pu
+include_three_phase = False
+length = 24*7
 n_repeats = 1
 
 """
 Choose data representation between: "raw", "delta", "binary" or
 do a comparison using "comparison"
+Fluvinus experiment can be done using "truncated"
 """
 representation = "raw"
 
 """
-Choose Algorithm between: "clustering", "correlation" 
+Choose Algorithm between: "clustering", "correlation", "load-correlation"
 """
-algorithm = "correlation"
+algorithm = "load_correlation"
 
 included_feeders = []
 if include_A:
@@ -61,12 +63,16 @@ for feeder_id in included_feeders:
         feeder.change_data_representation(representation="delta")
     elif representation == "binary":
         feeder.change_data_representation(representation="binary")
+    elif representation == "truncated":
+        feeder.truncate_voltages()
 
     if algorithm == "clustering":
         clusters = feeder.k_means_clustering(3, n_repeats=n_repeats)
         clusters.match_labels(feeder)
         print("Accuracy using ", representation, " data: ", clusters.accuracy(feeder))
         feeder.plot_voltages(length=length)
+        feeder.plot_load_profiles(length=length)
+        #silhouette_analysis(feeder, clusters)
 
     if algorithm == "clustering_comparison":
         compare_algorithms(feeder, 'accuracy', n_repeats, range=range(2, 5))
@@ -75,3 +81,8 @@ for feeder_id in included_feeders:
         identification = feeder.voltage_correlation()
         print("Accuracy using voltage correlation: ", identification.accuracy(feeder))
         print("wrong device ID's: ", identification.find_wrong_IDs(feeder))
+
+    elif algorithm == "load_correlation":
+        load_feeder = PartialPhaseIdentification(measurement_error=load_noise, feederID=feeder_id, include_three_phase=include_three_phase)
+        print("Start load correlation algorithm for ", feeder_id)
+        load_feeder.load_correlation(sal_treshold=0.2, corr_treshold=0.0)

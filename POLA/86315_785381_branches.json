@@ -65,7 +65,7 @@
     },
     {
         "branchId":8,
-        "cableLength":0,
+        "cableLength":15,
         "cableType":"aansluitkabel",
         "downBusId":9,
         "type":"Cable",
@@ -97,7 +97,7 @@
     },
     {
         "branchId":12,
-        "cableLength":0,
+        "cableLength":9,
         "cableType":"aansluitkabel",
         "downBusId":13,
         "type":"Cable",
@@ -225,7 +225,7 @@
     },
     {
         "branchId":28,
-        "cableLength":0,
+        "cableLength":7,
         "cableType":"aansluitkabel",
         "downBusId":29,
         "type":"Cable",
@@ -257,7 +257,7 @@
     },
     {
         "branchId":32,
-        "cableLength":0,
+        "cableLength":11,
         "cableType":"aansluitkabel",
         "downBusId":33,
         "type":"Cable",
@@ -273,7 +273,7 @@
     },
     {
         "branchId":34,
-        "cableLength":0,
+        "cableLength":13,
         "cableType":"aansluitkabel",
         "downBusId":35,
         "type":"Cable",
@@ -305,7 +305,7 @@
     },
     {
         "branchId":38,
-        "cableLength":0,
+        "cableLength":5,
         "cableType":"aansluitkabel",
         "downBusId":39,
         "type":"Cable",
@@ -321,7 +321,7 @@
     },
     {
         "branchId":40,
-        "cableLength":0,
+        "cableLength":6,
         "cableType":"aansluitkabel",
         "downBusId":41,
         "type":"Cable",
@@ -337,7 +337,7 @@
     },
     {
         "branchId":42,
-        "cableLength":0,
+        "cableLength":1,
         "cableType":"aansluitkabel",
         "downBusId":43,
         "type":"Cable",
@@ -353,7 +353,7 @@
     },
     {
         "branchId":44,
-        "cableLength":0,
+        "cableLength":4,
         "cableType":"aansluitkabel",
         "downBusId":45,
         "type":"Cable",
@@ -369,7 +369,7 @@
     },
     {
         "branchId":46,
-        "cableLength":0,
+        "cableLength":19,
         "cableType":"aansluitkabel",
         "downBusId":47,
         "type":"Cable",
@@ -385,7 +385,7 @@
     },
     {
         "branchId":48,
-        "cableLength":0,
+        "cableLength":1,
         "cableType":"aansluitkabel",
         "downBusId":49,
         "type":"Cable",
@@ -401,7 +401,7 @@
     },
     {
         "branchId":50,
-        "cableLength":0,
+        "cableLength":14,
         "cableType":"aansluitkabel",
         "downBusId":51,
         "type":"Cable",
@@ -417,7 +417,7 @@
     },
     {
         "branchId":52,
-        "cableLength":0,
+        "cableLength":15,
         "cableType":"aansluitkabel",
         "downBusId":53,
         "type":"Cable",
@@ -433,7 +433,7 @@
     },
     {
         "branchId":54,
-        "cableLength":0,
+        "cableLength":18,
         "cableType":"aansluitkabel",
         "downBusId":55,
         "type":"Cable",
@@ -449,7 +449,7 @@
     },
     {
         "branchId":56,
-        "cableLength":0,
+        "cableLength":9,
         "cableType":"aansluitkabel",
         "downBusId":57,
         "type":"Cable",

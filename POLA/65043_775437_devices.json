@@ -10,8 +10,8 @@
             "phases":[
                 2
             ],
-            "yearlyNetConsumption":1439.9662704050975,
-            "yearlyNetReactiveConsumption":211.77231137996094
+            "yearlyNetConsumption":1480.1952125227774,
+            "yearlyNetReactiveConsumption":150.99270408741413
         },
         {
             "busId":2,
@@ -23,8 +23,8 @@
             "phases":[
                 1
             ],
-            "yearlyNetConsumption":995.9958314402143,
-            "yearlyNetReactiveConsumption":167.178763939435
+            "yearlyNetConsumption":1076.3714700597534,
+            "yearlyNetReactiveConsumption":151.56107490636958
         },
         {
             "busId":2,
@@ -34,10 +34,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034863430_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                2
+                3
             ],
-            "yearlyNetConsumption":1206.3726072489876,
-            "yearlyNetReactiveConsumption":169.69314690528137
+            "yearlyNetConsumption":1269.1751778913167,
+            "yearlyNetReactiveConsumption":102.34233793270928
         },
         {
             "busId":2,
@@ -47,10 +47,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034863433_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                3
+                1
             ],
-            "yearlyNetConsumption":1728.2936110092962,
-            "yearlyNetReactiveConsumption":191.23627368993397
+            "yearlyNetConsumption":2219.29527385868,
+            "yearlyNetReactiveConsumption":114.78836882808491
         },
         {
             "busId":2,
@@ -60,10 +60,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034863434_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                1
+                2
             ],
-            "yearlyNetConsumption":1478.854108118851,
-            "yearlyNetReactiveConsumption":184.10358778214396
+            "yearlyNetConsumption":1869.7437822681618,
+            "yearlyNetReactiveConsumption":111.67642764893212
         },
         {
             "busId":2,
@@ -75,8 +75,8 @@
             "phases":[
                 2
             ],
-            "yearlyNetConsumption":1385.333862573106,
-            "yearlyNetReactiveConsumption":146.6560392823209
+            "yearlyNetConsumption":1783.2658702245028,
+            "yearlyNetReactiveConsumption":162.22238352642037
         },
         {
             "busId":2,
@@ -86,10 +86,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034863436_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                2
+                1
             ],
-            "yearlyNetConsumption":1582.2869527639732,
-            "yearlyNetReactiveConsumption":154.525587284866
+            "yearlyNetConsumption":1681.7235233591375,
+            "yearlyNetReactiveConsumption":164.01088430008159
         },
         {
             "busId":2,
@@ -101,8 +101,8 @@
             "phases":[
                 1
             ],
-            "yearlyNetConsumption":1598.3168585829424,
-            "yearlyNetReactiveConsumption":166.60275311005006
+            "yearlyNetConsumption":1398.3726306350484,
+            "yearlyNetReactiveConsumption":151.23888901069637
         },
         {
             "busId":2,
@@ -112,10 +112,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034863438_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                1
+                2
             ],
-            "yearlyNetConsumption":1581.3838862674875,
-            "yearlyNetReactiveConsumption":150.63475644493968
+            "yearlyNetConsumption":1923.968135204038,
+            "yearlyNetReactiveConsumption":132.97896917361012
         },
         {
             "busId":2,
@@ -125,10 +125,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866849_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                3
+                2
             ],
-            "yearlyNetConsumption":1668.03934532479,
-            "yearlyNetReactiveConsumption":175.11257854282766
+            "yearlyNetConsumption":928.767648116288,
+            "yearlyNetReactiveConsumption":151.875326675315
         },
         {
             "busId":2,
@@ -138,10 +138,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866850_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                1
+                3
             ],
-            "yearlyNetConsumption":1690.5351266593352,
-            "yearlyNetReactiveConsumption":92.25540654995777
+            "yearlyNetConsumption":1285.3608919473327,
+            "yearlyNetReactiveConsumption":134.7805979917535
         },
         {
             "busId":2,
@@ -151,10 +151,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866851_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                1
+                3
             ],
-            "yearlyNetConsumption":1200.6818080264245,
-            "yearlyNetReactiveConsumption":166.06084998303854
+            "yearlyNetConsumption":1387.4276933705557,
+            "yearlyNetReactiveConsumption":127.72504479411609
         },
         {
             "busId":2,
@@ -164,10 +164,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866852_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                1
+                2
             ],
-            "yearlyNetConsumption":1615.3289130275566,
-            "yearlyNetReactiveConsumption":187.15072994316466
+            "yearlyNetConsumption":1661.3941307244081,
+            "yearlyNetReactiveConsumption":106.73929094079645
         },
         {
             "busId":2,
@@ -177,10 +177,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866853_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                1
+                2
             ],
-            "yearlyNetConsumption":1748.6789672934444,
-            "yearlyNetReactiveConsumption":157.56950634211665
+            "yearlyNetConsumption":988.5177976185594,
+            "yearlyNetReactiveConsumption":165.95949016906633
         },
         {
             "busId":2,
@@ -190,10 +190,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866854_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                1
+                2
             ],
-            "yearlyNetConsumption":1647.5080242020738,
-            "yearlyNetReactiveConsumption":118.66404933870444
+            "yearlyNetConsumption":1693.9103317344984,
+            "yearlyNetReactiveConsumption":145.51527364626676
         },
         {
             "busId":2,
@@ -203,10 +203,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866855_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                1
+                2
             ],
-            "yearlyNetConsumption":1505.8863170158083,
-            "yearlyNetReactiveConsumption":153.02475908628705
+            "yearlyNetConsumption":1423.6018399167972,
+            "yearlyNetReactiveConsumption":187.37631053737812
         },
         {
             "busId":2,
@@ -216,10 +216,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866856_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                2
+                1
             ],
-            "yearlyNetConsumption":989.2438340493327,
-            "yearlyNetReactiveConsumption":189.84556521917634
+            "yearlyNetConsumption":1685.3347740717843,
+            "yearlyNetReactiveConsumption":165.6796259786077
         },
         {
             "busId":2,
@@ -231,8 +231,8 @@
             "phases":[
                 3
             ],
-            "yearlyNetConsumption":1282.9954722615025,
-            "yearlyNetReactiveConsumption":153.91471810683012
+            "yearlyNetConsumption":1818.92235884737,
+            "yearlyNetReactiveConsumption":109.31997233150139
         },
         {
             "busId":2,
@@ -244,8 +244,8 @@
             "phases":[
                 3
             ],
-            "yearlyNetConsumption":1356.436615939169,
-            "yearlyNetReactiveConsumption":128.53903855031103
+            "yearlyNetConsumption":1712.4328859363893,
+            "yearlyNetReactiveConsumption":174.63781823478797
         },
         {
             "busId":2,
@@ -259,8 +259,8 @@
                 2,
                 3
             ],
-            "yearlyNetConsumption":5539.6826051659,
-            "yearlyNetReactiveConsumption":747.7645527467018
+            "yearlyNetConsumption":4298.052365341927,
+            "yearlyNetReactiveConsumption":499.8207574177473
         },
         {
             "busId":2,
@@ -274,8 +274,8 @@
                 2,
                 3
             ],
-            "yearlyNetConsumption":3882.824347811009,
-            "yearlyNetReactiveConsumption":612.929525606296
+            "yearlyNetConsumption":5019.929796888117,
+            "yearlyNetReactiveConsumption":385.19084258236154
         },
         {
             "busId":2,
@@ -285,10 +285,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0046916787_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                2
+                3
             ],
-            "yearlyNetConsumption":1351.575332545766,
-            "yearlyNetReactiveConsumption":160.99592622635586
+            "yearlyNetConsumption":1511.6751946995435,
+            "yearlyNetReactiveConsumption":174.6822429510217
         },
         {
             "busId":4,
@@ -300,8 +300,8 @@
             "phases":[
                 1
             ],
-            "yearlyNetConsumption":1501.423229620807,
-            "yearlyNetReactiveConsumption":167.2609161754977
+            "yearlyNetConsumption":1826.6334621470198,
+            "yearlyNetReactiveConsumption":163.4143457766646
         },
         {
             "busId":4,
@@ -313,8 +313,8 @@
             "phases":[
                 3
             ],
-            "yearlyNetConsumption":1548.7946694508144,
-            "yearlyNetReactiveConsumption":132.84486026438958
+            "yearlyNetConsumption":1590.5890277552348,
+            "yearlyNetReactiveConsumption":175.0801341156513
         },
         {
             "busId":4,
@@ -326,8 +326,8 @@
             "phases":[
                 1
             ],
-            "yearlyNetConsumption":1447.9041712763917,
-            "yearlyNetReactiveConsumption":145.09397161957787
+            "yearlyNetConsumption":1423.9232542533082,
+            "yearlyNetReactiveConsumption":170.62722157325715
         },
         {
             "busId":4,
@@ -337,10 +337,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866802_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                3
+                2
             ],
-            "yearlyNetConsumption":1433.5995563978213,
-            "yearlyNetReactiveConsumption":155.79116083333776
+            "yearlyNetConsumption":1648.0667811219055,
+            "yearlyNetReactiveConsumption":170.19362255019766
         },
         {
             "busId":4,
@@ -350,10 +350,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866803_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                1
+                2
             ],
-            "yearlyNetConsumption":1961.4536987908361,
-            "yearlyNetReactiveConsumption":172.2500770433986
+            "yearlyNetConsumption":1234.6044024923606,
+            "yearlyNetReactiveConsumption":125.73387332627867
         },
         {
             "busId":4,
@@ -365,8 +365,8 @@
             "phases":[
                 1
             ],
-            "yearlyNetConsumption":1248.5034015513593,
-            "yearlyNetReactiveConsumption":137.66625338457712
+            "yearlyNetConsumption":1722.3206382902697,
+            "yearlyNetReactiveConsumption":166.3838291220317
         },
         {
             "busId":4,
@@ -376,10 +376,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866806_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                3
+                2
             ],
-            "yearlyNetConsumption":1328.0732648677129,
-            "yearlyNetReactiveConsumption":142.7274762181148
+            "yearlyNetConsumption":1429.742595368795,
+            "yearlyNetReactiveConsumption":133.02704296374895
         },
         {
             "busId":4,
@@ -389,10 +389,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866807_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                3
+                1
             ],
-            "yearlyNetConsumption":1501.3480271116723,
-            "yearlyNetReactiveConsumption":202.3325182257276
+            "yearlyNetConsumption":1165.3002745175077,
+            "yearlyNetReactiveConsumption":113.12102542352149
         },
         {
             "busId":4,
@@ -404,8 +404,8 @@
             "phases":[
                 2
             ],
-            "yearlyNetConsumption":1441.1191379004144,
-            "yearlyNetReactiveConsumption":164.4186192583708
+            "yearlyNetConsumption":1308.973089774624,
+            "yearlyNetReactiveConsumption":138.17571847038147
         },
         {
             "busId":4,
@@ -415,10 +415,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866860_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                2
+                3
             ],
-            "yearlyNetConsumption":1889.8740304610442,
-            "yearlyNetReactiveConsumption":117.58739781843887
+            "yearlyNetConsumption":2121.918348005658,
+            "yearlyNetReactiveConsumption":155.47086204268928
         },
         {
             "busId":4,
@@ -428,10 +428,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866861_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                1
+                3
             ],
-            "yearlyNetConsumption":1383.855023868472,
-            "yearlyNetReactiveConsumption":159.7014529728132
+            "yearlyNetConsumption":1573.4507984711356,
+            "yearlyNetReactiveConsumption":156.16725244903589
         },
         {
             "busId":4,
@@ -441,10 +441,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866862_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                3
+                1
             ],
-            "yearlyNetConsumption":1538.9771784538577,
-            "yearlyNetReactiveConsumption":185.26729434066382
+            "yearlyNetConsumption":1749.891151865518,
+            "yearlyNetReactiveConsumption":173.92008682389465
         },
         {
             "busId":4,
@@ -456,8 +456,8 @@
             "phases":[
                 3
             ],
-            "yearlyNetConsumption":1321.8949263080042,
-            "yearlyNetReactiveConsumption":126.13733020603819
+            "yearlyNetConsumption":1670.3605491389978,
+            "yearlyNetReactiveConsumption":118.66543478224423
         },
         {
             "busId":4,
@@ -469,8 +469,8 @@
             "phases":[
                 1
             ],
-            "yearlyNetConsumption":889.4028475569963,
-            "yearlyNetReactiveConsumption":114.25792959972526
+            "yearlyNetConsumption":1607.4408629912189,
+            "yearlyNetReactiveConsumption":137.70116801924019
         },
         {
             "busId":4,
@@ -480,10 +480,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866865_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                2
+                1
             ],
-            "yearlyNetConsumption":1028.3850089725238,
-            "yearlyNetReactiveConsumption":166.559003053842
+            "yearlyNetConsumption":1211.4670742652534,
+            "yearlyNetReactiveConsumption":191.52935607325182
         },
         {
             "busId":4,
@@ -493,10 +493,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866866_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                1
+                3
             ],
-            "yearlyNetConsumption":1251.2871022191475,
-            "yearlyNetReactiveConsumption":144.60885404427208
+            "yearlyNetConsumption":1371.8295228623601,
+            "yearlyNetReactiveConsumption":142.21719196693726
         },
         {
             "busId":4,
@@ -506,10 +506,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866867_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                2
+                1
             ],
-            "yearlyNetConsumption":1559.165099117231,
-            "yearlyNetReactiveConsumption":169.03696476149304
+            "yearlyNetConsumption":1427.4415446118112,
+            "yearlyNetReactiveConsumption":165.388057685522
         },
         {
             "busId":4,
@@ -519,10 +519,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866868_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                3
+                2
             ],
-            "yearlyNetConsumption":1588.1240184108526,
-            "yearlyNetReactiveConsumption":104.36539520277688
+            "yearlyNetConsumption":1302.9876585115423,
+            "yearlyNetReactiveConsumption":176.65082363724804
         },
         {
             "busId":4,
@@ -532,10 +532,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034936279_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                1
+                3
             ],
-            "yearlyNetConsumption":1342.9638576024836,
-            "yearlyNetReactiveConsumption":205.48780093887194
+            "yearlyNetConsumption":1845.0948464231183,
+            "yearlyNetReactiveConsumption":115.66895529487874
         },
         {
             "busId":4,
@@ -549,8 +549,8 @@
                 2,
                 3
             ],
-            "yearlyNetConsumption":5113.366379942862,
-            "yearlyNetReactiveConsumption":416.1383763991186
+            "yearlyNetConsumption":6522.057098551076,
+            "yearlyNetReactiveConsumption":433.22635215529874
         },
         {
             "busId":4,
@@ -564,8 +564,8 @@
                 2,
                 3
             ],
-            "yearlyNetConsumption":3911.4168896425,
-            "yearlyNetReactiveConsumption":520.0770899146158
+            "yearlyNetConsumption":5904.251479274559,
+            "yearlyNetReactiveConsumption":337.3575207427394
         },
         {
             "busId":6,
@@ -575,10 +575,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866709_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                2
+                1
             ],
-            "yearlyNetConsumption":1088.9055252742933,
-            "yearlyNetReactiveConsumption":192.65647163673393
+            "yearlyNetConsumption":1376.1429702361795,
+            "yearlyNetReactiveConsumption":140.69053360051433
         },
         {
             "busId":6,
@@ -590,8 +590,8 @@
             "phases":[
                 1
             ],
-            "yearlyNetConsumption":1132.8840122324864,
-            "yearlyNetReactiveConsumption":146.82633889401555
+            "yearlyNetConsumption":1726.9923993855684,
+            "yearlyNetReactiveConsumption":145.41938271874847
         },
         {
             "busId":6,
@@ -601,10 +601,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866711_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                3
+                1
             ],
-            "yearlyNetConsumption":1137.5132972070255,
-            "yearlyNetReactiveConsumption":154.27816624802094
+            "yearlyNetConsumption":1555.8973346200787,
+            "yearlyNetReactiveConsumption":115.79820848482362
         },
         {
             "busId":6,
@@ -614,10 +614,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866712_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                3
+                2
             ],
-            "yearlyNetConsumption":1489.7820073129249,
-            "yearlyNetReactiveConsumption":207.84124744328423
+            "yearlyNetConsumption":1234.0410942724675,
+            "yearlyNetReactiveConsumption":188.9879798878775
         },
         {
             "busId":6,
@@ -627,10 +627,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866713_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                3
+                1
             ],
-            "yearlyNetConsumption":1257.2678848447226,
-            "yearlyNetReactiveConsumption":180.79621390159014
+            "yearlyNetConsumption":1628.8365387081024,
+            "yearlyNetReactiveConsumption":148.48028874901692
         },
         {
             "busId":6,
@@ -640,10 +640,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866714_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                2
+                3
             ],
-            "yearlyNetConsumption":1677.1962343933728,
-            "yearlyNetReactiveConsumption":189.26103690781687
+            "yearlyNetConsumption":1237.2924049850294,
+            "yearlyNetReactiveConsumption":186.09756401503031
         },
         {
             "busId":6,
@@ -653,10 +653,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866715_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                3
+                1
             ],
-            "yearlyNetConsumption":1410.1087225860422,
-            "yearlyNetReactiveConsumption":156.56198774726823
+            "yearlyNetConsumption":1444.2166394310566,
+            "yearlyNetReactiveConsumption":104.95240730675121
         },
         {
             "busId":6,
@@ -666,10 +666,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866716_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                2
+                1
             ],
-            "yearlyNetConsumption":1151.429656764123,
-            "yearlyNetReactiveConsumption":133.16362808402258
+            "yearlyNetConsumption":1662.4990524218754,
+            "yearlyNetReactiveConsumption":145.328903663616
         },
         {
             "busId":6,
@@ -679,10 +679,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866717_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                1
+                3
             ],
-            "yearlyNetConsumption":1704.1722746201601,
-            "yearlyNetReactiveConsumption":140.49254288192617
+            "yearlyNetConsumption":1630.926402088433,
+            "yearlyNetReactiveConsumption":125.11901488815835
         },
         {
             "busId":6,
@@ -692,10 +692,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866718_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                3
+                1
             ],
-            "yearlyNetConsumption":1349.4646041317897,
-            "yearlyNetReactiveConsumption":138.5840405583137
+            "yearlyNetConsumption":1490.5170939325178,
+            "yearlyNetReactiveConsumption":124.32236446299308
         },
         {
             "busId":6,
@@ -705,10 +705,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866779_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                3
+                2
             ],
-            "yearlyNetConsumption":1756.4918883932078,
-            "yearlyNetReactiveConsumption":151.96887358385948
+            "yearlyNetConsumption":1340.4070913060177,
+            "yearlyNetReactiveConsumption":104.70586033618102
         },
         {
             "busId":6,
@@ -718,10 +718,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866780_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                1
+                2
             ],
-            "yearlyNetConsumption":1677.693271307933,
-            "yearlyNetReactiveConsumption":179.24156341782867
+            "yearlyNetConsumption":1678.6864582363107,
+            "yearlyNetReactiveConsumption":145.89319875784852
         },
         {
             "busId":6,
@@ -731,10 +731,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866782_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                2
+                1
             ],
-            "yearlyNetConsumption":1487.601578199574,
-            "yearlyNetReactiveConsumption":147.17061628868393
+            "yearlyNetConsumption":1201.6035952929612,
+            "yearlyNetReactiveConsumption":103.46007290179408
         },
         {
             "busId":6,
@@ -744,10 +744,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866784_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                1
+                3
             ],
-            "yearlyNetConsumption":1413.674462152791,
-            "yearlyNetReactiveConsumption":100.72074238268976
+            "yearlyNetConsumption":1755.707896015909,
+            "yearlyNetReactiveConsumption":138.3320372717956
         },
         {
             "busId":6,
@@ -757,10 +757,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866786_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                2
+                3
             ],
-            "yearlyNetConsumption":1389.535102671166,
-            "yearlyNetReactiveConsumption":169.03680864080243
+            "yearlyNetConsumption":1469.8688877658299,
+            "yearlyNetReactiveConsumption":173.1293761215319
         },
         {
             "busId":6,
@@ -770,10 +770,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866787_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                3
+                2
             ],
-            "yearlyNetConsumption":1630.1065813832654,
-            "yearlyNetReactiveConsumption":191.15066511981075
+            "yearlyNetConsumption":1075.3697943076859,
+            "yearlyNetReactiveConsumption":123.52018627213822
         },
         {
             "busId":6,
@@ -783,10 +783,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866788_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                3
+                1
             ],
-            "yearlyNetConsumption":1824.517777320935,
-            "yearlyNetReactiveConsumption":156.20469234303928
+            "yearlyNetConsumption":1756.169327951114,
+            "yearlyNetReactiveConsumption":140.98536779454457
         },
         {
             "busId":6,
@@ -796,10 +796,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034903017_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                1
+                2
             ],
-            "yearlyNetConsumption":1622.378497816686,
-            "yearlyNetReactiveConsumption":152.39870553304863
+            "yearlyNetConsumption":1607.0620876222129,
+            "yearlyNetReactiveConsumption":204.70099905636943
         },
         {
             "busId":6,
@@ -813,8 +813,8 @@
                 2,
                 3
             ],
-            "yearlyNetConsumption":5703.4807120564665,
-            "yearlyNetReactiveConsumption":574.5656869794147
+            "yearlyNetConsumption":5487.216580061444,
+            "yearlyNetReactiveConsumption":609.4852246478127
         },
         {
             "busId":6,
@@ -828,8 +828,8 @@
                 2,
                 3
             ],
-            "yearlyNetConsumption":4703.889930268769,
-            "yearlyNetReactiveConsumption":416.31437942860146
+            "yearlyNetConsumption":4619.042959396391,
+            "yearlyNetReactiveConsumption":409.4026773415234
         },
         {
             "busId":6,
@@ -843,8 +843,8 @@
                 2,
                 3
             ],
-            "yearlyNetConsumption":3643.289946550939,
-            "yearlyNetReactiveConsumption":428.93319653897777
+            "yearlyNetConsumption":4610.003367513934,
+            "yearlyNetReactiveConsumption":590.2153803613082
         },
         {
             "busId":6,
@@ -858,8 +858,8 @@
                 2,
                 3
             ],
-            "yearlyNetConsumption":6718.2875144134305,
-            "yearlyNetReactiveConsumption":489.3459791306385
+            "yearlyNetConsumption":5238.95070605417,
+            "yearlyNetReactiveConsumption":393.79458603104695
         },
         {
             "busId":6,
@@ -869,10 +869,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0046916926_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                3
+                2
             ],
-            "yearlyNetConsumption":1305.5474319870168,
-            "yearlyNetReactiveConsumption":184.23961232769813
+            "yearlyNetConsumption":1374.1038325996064,
+            "yearlyNetReactiveConsumption":149.86851758174834
         },
         {
             "busId":8,
@@ -882,10 +882,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034804459_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                2
+                1
             ],
-            "yearlyNetConsumption":1303.4263839027567,
-            "yearlyNetReactiveConsumption":149.58389429790233
+            "yearlyNetConsumption":1398.3657684596337,
+            "yearlyNetReactiveConsumption":143.47665158657415
         },
         {
             "busId":8,
@@ -895,10 +895,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866781_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                3
+                2
             ],
-            "yearlyNetConsumption":1386.15237040242,
-            "yearlyNetReactiveConsumption":148.33796585402368
+            "yearlyNetConsumption":1649.1353336636143,
+            "yearlyNetReactiveConsumption":85.74048344284421
         },
         {
             "busId":8,
@@ -908,10 +908,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866785_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                3
+                2
             ],
-            "yearlyNetConsumption":1455.6168690720085,
-            "yearlyNetReactiveConsumption":157.77058286206346
+            "yearlyNetConsumption":1773.4326887935806,
+            "yearlyNetReactiveConsumption":163.18543412468313
         },
         {
             "busId":8,
@@ -923,8 +923,8 @@
             "phases":[
                 3
             ],
-            "yearlyNetConsumption":1287.3925686022624,
-            "yearlyNetReactiveConsumption":148.4828259391594
+            "yearlyNetConsumption":1258.6717122632526,
+            "yearlyNetReactiveConsumption":189.80096839583183
         },
         {
             "busId":8,
@@ -936,8 +936,8 @@
             "phases":[
                 3
             ],
-            "yearlyNetConsumption":1372.9272332090943,
-            "yearlyNetReactiveConsumption":209.20842405314713
+            "yearlyNetConsumption":1322.1570853485664,
+            "yearlyNetReactiveConsumption":154.3169500118
         },
         {
             "busId":8,
@@ -947,10 +947,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866951_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                2
+                3
             ],
-            "yearlyNetConsumption":1412.856701654488,
-            "yearlyNetReactiveConsumption":130.44548036628433
+            "yearlyNetConsumption":1476.2695701464118,
+            "yearlyNetReactiveConsumption":120.31838539170153
         },
         {
             "busId":8,
@@ -962,8 +962,8 @@
             "phases":[
                 3
             ],
-            "yearlyNetConsumption":1515.6033844238232,
-            "yearlyNetReactiveConsumption":125.39954921910787
+            "yearlyNetConsumption":1930.8106985088277,
+            "yearlyNetReactiveConsumption":172.27163358990109
         },
         {
             "busId":8,
@@ -975,8 +975,8 @@
             "phases":[
                 2
             ],
-            "yearlyNetConsumption":1418.149479436711,
-            "yearlyNetReactiveConsumption":142.11016595357975
+            "yearlyNetConsumption":1189.8468564486182,
+            "yearlyNetReactiveConsumption":157.84432984670096
         },
         {
             "busId":8,
@@ -986,10 +986,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866955_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                3
+                2
             ],
-            "yearlyNetConsumption":1555.364952110631,
-            "yearlyNetReactiveConsumption":162.88053960016282
+            "yearlyNetConsumption":1647.8726459652746,
+            "yearlyNetReactiveConsumption":140.84992566941952
         },
         {
             "busId":8,
@@ -999,10 +999,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866956_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                2
+                1
             ],
-            "yearlyNetConsumption":2400.7535939194304,
-            "yearlyNetReactiveConsumption":180.09370106868028
+            "yearlyNetConsumption":1754.9179886266752,
+            "yearlyNetReactiveConsumption":144.37038628236536
         },
         {
             "busId":8,
@@ -1012,10 +1012,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866957_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                2
+                1
             ],
-            "yearlyNetConsumption":1874.419995608346,
-            "yearlyNetReactiveConsumption":145.22835409247025
+            "yearlyNetConsumption":1476.8818824620007,
+            "yearlyNetReactiveConsumption":119.97364073649798
         },
         {
             "busId":8,
@@ -1025,10 +1025,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866958_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                2
+                1
             ],
-            "yearlyNetConsumption":1350.014916937846,
-            "yearlyNetReactiveConsumption":147.688909566225
+            "yearlyNetConsumption":1346.280612439132,
+            "yearlyNetReactiveConsumption":139.71586490291958
         },
         {
             "busId":8,
@@ -1038,10 +1038,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866989_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                1
+                3
             ],
-            "yearlyNetConsumption":1637.6623914832326,
-            "yearlyNetReactiveConsumption":190.5954668225833
+            "yearlyNetConsumption":1665.4373067272531,
+            "yearlyNetReactiveConsumption":161.2507958087136
         },
         {
             "busId":8,
@@ -1053,8 +1053,8 @@
             "phases":[
                 1
             ],
-            "yearlyNetConsumption":1354.1464575392754,
-            "yearlyNetReactiveConsumption":126.23311214945144
+            "yearlyNetConsumption":1948.6968682895565,
+            "yearlyNetReactiveConsumption":114.10734011002174
         },
         {
             "busId":8,
@@ -1064,10 +1064,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866991_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                2
+                1
             ],
-            "yearlyNetConsumption":1080.1148186724306,
-            "yearlyNetReactiveConsumption":169.6326322864852
+            "yearlyNetConsumption":1935.0027375767922,
+            "yearlyNetReactiveConsumption":195.766274016493
         },
         {
             "busId":8,
@@ -1077,10 +1077,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866992_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                2
+                1
             ],
-            "yearlyNetConsumption":1659.1916441419141,
-            "yearlyNetReactiveConsumption":158.91985006781218
+            "yearlyNetConsumption":1830.5293868463236,
+            "yearlyNetReactiveConsumption":184.95062775543906
         },
         {
             "busId":8,
@@ -1090,10 +1090,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866993_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                1
+                3
             ],
-            "yearlyNetConsumption":1723.0095708721974,
-            "yearlyNetReactiveConsumption":149.06557844843348
+            "yearlyNetConsumption":1563.3194307031351,
+            "yearlyNetReactiveConsumption":154.32206970980096
         },
         {
             "busId":8,
@@ -1103,10 +1103,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866994_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                1
+                2
             ],
-            "yearlyNetConsumption":1279.7303006298284,
-            "yearlyNetReactiveConsumption":117.59747491894619
+            "yearlyNetConsumption":994.6257271344582,
+            "yearlyNetReactiveConsumption":101.46563680975973
         },
         {
             "busId":8,
@@ -1116,10 +1116,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866995_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                2
+                3
             ],
-            "yearlyNetConsumption":1134.0300303220065,
-            "yearlyNetReactiveConsumption":108.7611016748232
+            "yearlyNetConsumption":1177.459971233593,
+            "yearlyNetReactiveConsumption":187.59346558769232
         },
         {
             "busId":8,
@@ -1131,8 +1131,8 @@
             "phases":[
                 3
             ],
-            "yearlyNetConsumption":1899.2241662948818,
-            "yearlyNetReactiveConsumption":98.7002454171258
+            "yearlyNetConsumption":1964.9763118827534,
+            "yearlyNetReactiveConsumption":99.67304075304841
         },
         {
             "busId":8,
@@ -1142,10 +1142,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034866997_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                1
+                2
             ],
-            "yearlyNetConsumption":1718.6338794501753,
-            "yearlyNetReactiveConsumption":98.73200103067632
+            "yearlyNetConsumption":1561.6762242899217,
+            "yearlyNetReactiveConsumption":183.74372212744336
         },
         {
             "busId":8,
@@ -1159,8 +1159,8 @@
                 2,
                 3
             ],
-            "yearlyNetConsumption":3930.5415902107434,
-            "yearlyNetReactiveConsumption":425.4254963597541
+            "yearlyNetConsumption":4927.514707995181,
+            "yearlyNetReactiveConsumption":530.4279693634116
         },
         {
             "busId":8,
@@ -1174,8 +1174,8 @@
                 2,
                 3
             ],
-            "yearlyNetConsumption":3643.255943149278,
-            "yearlyNetReactiveConsumption":544.2306192026894
+            "yearlyNetConsumption":6076.287082076112,
+            "yearlyNetReactiveConsumption":478.577727583143
         },
         {
             "busId":8,
@@ -1189,8 +1189,8 @@
                 2,
                 3
             ],
-            "yearlyNetConsumption":5325.979920590143,
-            "yearlyNetReactiveConsumption":400.27295481621627
+            "yearlyNetConsumption":5775.348877572569,
+            "yearlyNetReactiveConsumption":442.6969066350315
         },
         {
             "busId":8,
@@ -1202,8 +1202,8 @@
             "phases":[
                 2
             ],
-            "yearlyNetConsumption":1253.5731175110182,
-            "yearlyNetReactiveConsumption":150.85910158729925
+            "yearlyNetConsumption":1967.964141102813,
+            "yearlyNetReactiveConsumption":170.19570647184065
         },
         {
             "busId":10,
@@ -1213,10 +1213,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034796004_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                1
+                2
             ],
-            "yearlyNetConsumption":1850.9258813166448,
-            "yearlyNetReactiveConsumption":121.15912759819254
+            "yearlyNetConsumption":1494.799124913847,
+            "yearlyNetReactiveConsumption":152.5156448516638
         },
         {
             "busId":10,
@@ -1226,10 +1226,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034831969_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                1
+                2
             ],
-            "yearlyNetConsumption":1238.2883977855327,
-            "yearlyNetReactiveConsumption":175.13954281175512
+            "yearlyNetConsumption":1417.5251955319522,
+            "yearlyNetReactiveConsumption":127.47907659745798
         },
         {
             "busId":10,
@@ -1239,10 +1239,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034831970_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                3
+                2
             ],
-            "yearlyNetConsumption":1787.0897826099495,
-            "yearlyNetReactiveConsumption":171.22671280694533
+            "yearlyNetConsumption":1103.650257500963,
+            "yearlyNetReactiveConsumption":126.86343759306098
         },
         {
             "busId":10,
@@ -1254,8 +1254,8 @@
             "phases":[
                 2
             ],
-            "yearlyNetConsumption":1379.9974188466306,
-            "yearlyNetReactiveConsumption":159.18128098879941
+            "yearlyNetConsumption":1542.4531822705892,
+            "yearlyNetReactiveConsumption":143.05799420052776
         },
         {
             "busId":10,
@@ -1265,10 +1265,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034831973_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                1
+                3
             ],
-            "yearlyNetConsumption":1594.5342908967089,
-            "yearlyNetReactiveConsumption":160.22009401641824
+            "yearlyNetConsumption":1758.8851334381961,
+            "yearlyNetReactiveConsumption":127.0478046727474
         },
         {
             "busId":10,
@@ -1280,8 +1280,8 @@
             "phases":[
                 3
             ],
-            "yearlyNetConsumption":1854.9821338479812,
-            "yearlyNetReactiveConsumption":159.90770772686562
+            "yearlyNetConsumption":1015.1514460723595,
+            "yearlyNetReactiveConsumption":150.93352377519028
         },
         {
             "busId":10,
@@ -1291,10 +1291,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034831976_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                1
+                2
             ],
-            "yearlyNetConsumption":1574.3983792276958,
-            "yearlyNetReactiveConsumption":187.665941997458
+            "yearlyNetConsumption":1516.1340776760478,
+            "yearlyNetReactiveConsumption":174.47986526965363
         },
         {
             "busId":10,
@@ -1304,10 +1304,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034831978_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                3
+                2
             ],
-            "yearlyNetConsumption":1729.8266877148117,
-            "yearlyNetReactiveConsumption":158.04320296874272
+            "yearlyNetConsumption":1210.9115541144156,
+            "yearlyNetReactiveConsumption":165.01298687756352
         },
         {
             "busId":10,
@@ -1317,10 +1317,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0040303644_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                2
+                3
             ],
-            "yearlyNetConsumption":1336.4951056488042,
-            "yearlyNetReactiveConsumption":154.93746033981117
+            "yearlyNetConsumption":1590.0830606697168,
+            "yearlyNetReactiveConsumption":154.59263619573943
         },
         {
             "busId":10,
@@ -1330,10 +1330,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0040430857_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                1
+                3
             ],
-            "yearlyNetConsumption":1913.6936119144048,
-            "yearlyNetReactiveConsumption":156.29348055121145
+            "yearlyNetConsumption":1552.7959667588218,
+            "yearlyNetReactiveConsumption":148.6451538636065
         },
         {
             "busId":12,
@@ -1345,8 +1345,8 @@
             "phases":[
                 3
             ],
-            "yearlyNetConsumption":1673.8927380236755,
-            "yearlyNetReactiveConsumption":157.30141307218986
+            "yearlyNetConsumption":1336.1495704958606,
+            "yearlyNetReactiveConsumption":132.53444499038974
         },
         {
             "busId":12,
@@ -1356,10 +1356,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034863222_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                3
+                2
             ],
-            "yearlyNetConsumption":1644.2012871830957,
-            "yearlyNetReactiveConsumption":99.75356756515163
+            "yearlyNetConsumption":1424.4215118693246,
+            "yearlyNetReactiveConsumption":143.71839215443592
         },
         {
             "busId":12,
@@ -1369,10 +1369,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034863226_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                3
+                1
             ],
-            "yearlyNetConsumption":1561.0082071175589,
-            "yearlyNetReactiveConsumption":170.6825847397951
+            "yearlyNetConsumption":1266.8617221613706,
+            "yearlyNetReactiveConsumption":106.70206244607007
         },
         {
             "busId":12,
@@ -1382,10 +1382,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0034863227_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                2
+                1
             ],
-            "yearlyNetConsumption":1516.4981427964992,
-            "yearlyNetReactiveConsumption":156.1332966875447
+            "yearlyNetConsumption":1950.941337829211,
+            "yearlyNetReactiveConsumption":160.35600943436194
         },
         {
             "busId":12,
@@ -1399,8 +1399,8 @@
                 2,
                 3
             ],
-            "yearlyNetConsumption":6634.1745659343305,
-            "yearlyNetReactiveConsumption":485.12531383868327
+            "yearlyNetConsumption":5345.172385328151,
+            "yearlyNetReactiveConsumption":476.3121748148764
         }
     ],
     "solarGens":[]

@@ -12,8 +12,8 @@
                 2,
                 3
             ],
-            "yearlyNetConsumption":4741.74964724317,
-            "yearlyNetReactiveConsumption":553.5265417320632
+            "yearlyNetConsumption":5513.8827348401965,
+            "yearlyNetReactiveConsumption":477.55668167650845
         },
         {
             "busId":6,
@@ -27,8 +27,8 @@
                 2,
                 3
             ],
-            "yearlyNetConsumption":2722.137533309902,
-            "yearlyNetReactiveConsumption":416.3244968121081
+            "yearlyNetConsumption":5059.752959097062,
+            "yearlyNetReactiveConsumption":561.7918177947447
         },
         {
             "busId":16,
@@ -38,10 +38,10 @@
             "device_profile_file":"Load profiles POLA/2020/profile_ZIV0050025395_2020.csv",
             "exclusiveNight":false,
             "phases":[
-                3
+                1
             ],
-            "yearlyNetConsumption":1456.307400411584,
-            "yearlyNetReactiveConsumption":113.30025525595815
+            "yearlyNetConsumption":1492.8542272354046,
+            "yearlyNetReactiveConsumption":172.22011152710206
         }
     ],
     "solarGens":[]

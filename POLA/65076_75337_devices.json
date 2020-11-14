@@ -12,8 +12,8 @@
                 2,
                 3
             ],
-            "yearlyNetConsumption":6407.722598761015,
-            "yearlyNetReactiveConsumption":460.4292395391276
+            "yearlyNetConsumption":4756.708988729097,
+            "yearlyNetReactiveConsumption":464.83848642686223
         },
         {
             "busId":12,
@@ -27,8 +27,8 @@
                 2,
                 3
             ],
-            "yearlyNetConsumption":4337.019642800967,
-            "yearlyNetReactiveConsumption":687.4260769412401
+            "yearlyNetConsumption":4447.747301907822,
+            "yearlyNetReactiveConsumption":385.1763419250098
         }
     ],
     "solarGens":[]

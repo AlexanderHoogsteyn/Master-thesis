@@ -21,17 +21,8 @@ Date:   16-09-2020
 
 class Feeder(object):
     """
-    A Featureset object contains all the data that you want to use to perform the clustering. The path attribute is
-    used to specify the folder which contains the JSON files. The include_empty_feeders is used to specify whether
-    you want to include feeders that doe not have any devices i.e. customers connected to it. The other attributes
-    make it possible to specify which features to include: - include_n_customers: Number of devices i.e. customers
-    connected to a feeder - include_total_length: Total conductor length in the feeder - include_main_path: Longest
-    path in the network between a device and the head of the feeder - include_avg_cons: The average active yearly
-    energy consumption of the customers on a feeder - include_avg_reactive_cons: Idem for reactive energy consumption
-    - include_n_PV: Number of PV installations on the network - include_total_impedance: The impedance between a
-    customer and the head of the feeder summed up for all customers - include_average_length: The average path length
-    between a customer and the head of the feeder - include_average_impedance: The average impedance between a
-    customer and the head of the feeder The object will store the features in  a numpy array as well as some metadata
+    A Feeder object contains all the data (voltage + load) that is needed to perform the clustering. The path_topology attribute is
+    used to specify the folder which contains the JSON files. The object will store the features in  a numpy array as well as some metadata
     such as list of the features used and the ID's of the feeders.
     """
 
@@ -39,7 +30,7 @@ class Feeder(object):
                  path_topology='C:/Users/AlexH/OneDrive/Documenten/Julia/Master-thesis/POLA/',
                  feederID='65019_74469', include_three_phase=False, measurement_error=0.0):
         """
-        Initialize the featureset by reading out the data from JSON files in the specified directory
+        Initialize the feeder object by reading out the data from JSON files in the specified directory
         """
         features = []
         if os.path.exists(path_data):
@@ -51,14 +42,6 @@ class Feeder(object):
         else:
             raise NameError("Topology path doesn't exist")
 
-        # list = ["Number of customers","Yearly consumption per customer (kWh)","Yearly reactive consumption per
-        # customer (kWh)","Number of PV installations", \ "Total conductor length (km)","Main path length (km)",
-        # "Average length to customer (km)", "Total line impedance (Ohm)","Average path impedance (Ohm)"] includes =
-        # [include_n_customer, include_avg_cons, include_avg_reactive_cons, include_n_PV, \ include_total_length,
-        # include_main_path, include_average_length, include_total_impedance, include_average_impedance]
-        # self._feature_list = [list[i] for i in error_range(len(list)) if includes[i]] cycle through all the json files
-        # 3 phase loads are added as 3 single phase loads, their Id's are seperately stored as well, the first one is choses
-        # as reference for the correlation algorithms
         configuration_file = self._path_topology + feederID + '_configuration.json'
         with open(configuration_file) as current_file:
             config_data = json.load(current_file)
@@ -86,6 +69,7 @@ class Feeder(object):
             busID = device.get("busId")
             device_phases = device.get("phases")
             if include_three_phase or len(device_phases) == 1:
+                #print("device: ", deviceID, " bus: ", busID, " phase: ", device_phases)
                 for phase in device_phases:
                     if phase == 1:
                         voltage_features.append(voltage_data[str(busID)]["phase_A"])
@@ -103,20 +87,16 @@ class Feeder(object):
                     self._device_IDs += [deviceID, deviceID, deviceID]
                 else:
                     self._device_IDs += [deviceID]
+
+
                 self._phase_labels += device_phases
         noise = np.random.normal(0, measurement_error, [np.size(voltage_features, 0), np.size(voltage_features, 1)])
-        self._voltage_features = np.array(voltage_features) + noise
-        self._load_features = np.array(load_features)
+        self.voltage_features = np.array(voltage_features) + noise
+        self.load_features = np.array(load_features)
         self._phase_labels = np.array(self._phase_labels)
 
-    def get_voltage_features(self):
-        """
-        Method to obtain the features as a numpy 2D array, each column contains a feature.
-        """
-        return self._voltage_features
-
     def set_voltage_features(self, data):
-        self._voltage_features = data
+        self.voltage_features = data
 
     def get_load_features(self):
         """
@@ -125,7 +105,7 @@ class Feeder(object):
         return self._load_features
 
     def set_load_features(self, data):
-        self._load_features = data
+        self.load_features = data
 
     def get_IDs(self):
         """
@@ -152,9 +132,9 @@ class Feeder(object):
         """
         if normalized:
             scaler = StandardScaler()
-            data = scaler.fit_transform(self.get_voltage_features())
+            data = scaler.fit_transform(self.voltage_features)
         else:
-            data = self.get_voltage_features()
+            data = self.voltage_features
         labels = AgglomerativeClustering(n_clusters).fit(data).labels_
         if criterion == 'global_silhouette':
             score = global_silhouette_criterion(data, labels)
@@ -164,16 +144,16 @@ class Feeder(object):
 
     def k_means_clustering(self, n_clusters=3, normalized=True, n_repeats=1, criterion='avg_silhouette'):
         """
-        Method that returns a clustering object obtained by performing K-means++ on the specified featureset.
+        Method that returns a clustering object obtained by performing K-means++ on the specified feeder.
         A number of repetitions can be specified, the best result according to the specified criterion will be returned
         By default the features will be normalized first. By scaling the features to have a mean of 0 and unit variance.
         (More info: https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.StandardScaler.html)
         """
         if normalized == True:
             scaler = StandardScaler()
-            data = scaler.fit_transform(self.get_voltage_features())
+            data = scaler.fit_transform(self.voltage_features)
         else:
-            data = self.get_voltage_features()
+            data = self.voltage_features
 
         if criterion == 'avg_silhouette':
             best_cluster_labels = np.zeros(np.size(data, 0))
@@ -197,16 +177,16 @@ class Feeder(object):
 
     def k_medoids_clustering(self, n_clusters=3, normalized=True, n_repeats=1, criterion='global_silhouette'):
         """
-        Method that returns a clustering object obtained by performing K-medoids++ on the specified featureset.
+        Method that returns a clustering object obtained by performing K-medoids++ on the specified feeder.
         A number of repetitions can be specified, the best result according to the specified criterion will be returned
         By default the features will be normalized first. By scaling the features to have a mean of 0 and unit variance.
         (More info: https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.StandardScaler.html)
         """
         if normalized == True:
             scaler = StandardScaler()
-            data = scaler.fit_transform(self.get_voltage_features())
+            data = scaler.fit_transform(self.voltage_features)
         else:
-            data = self.get_voltage_features()
+            data = self.voltage_features
 
         if criterion == 'avg_silhouette':
             best_cluster_labels = np.zeros(np.size(data, 0))
@@ -230,7 +210,7 @@ class Feeder(object):
 
     def gaussian_mixture_model(self, n_clusters=3, normalized=True, n_repeats=1):
         """
-        Method that returns a clustering object obtained by performing K-means++ on the specified featureset.
+        Method that returns a clustering object obtained by performing K-means++ on the specified feeder.
         A number of repetitions can be specified, the best result according to the average silhouette score will be
         returned
         By default the features will be normalized first. By scaling the features to have a mean of 0 and unit variance.
@@ -238,9 +218,9 @@ class Feeder(object):
         """
         if normalized == True:
             scaler = StandardScaler()
-            data = scaler.fit_transform(self.get_voltage_features())
+            data = scaler.fit_transform(self.voltage_features)
         else:
-            data = self.get_voltage_features()
+            data = self.voltage_features
 
         best_cluster_labels = np.zeros(np.size(data, 0))
         score = -1
@@ -261,7 +241,7 @@ class Feeder(object):
         except IndexError:
             raise ValueError("No 3 phase reference found")
         else:
-            profiles = self.get_voltage_features()
+            profiles = self.voltage_features
             profiles = profiles[id_ == id_3]
             labels = self.get_phase_labels()
             labels = labels[id_ == id_3]
@@ -271,7 +251,7 @@ class Feeder(object):
         labels, profiles = self.get_reference_3phase_customer()
         phase_labels = []
         scores = []
-        for device in self.get_voltage_features():
+        for device in self.voltage_features:
             corr = 0
             label = np.nan
             for phase in range(0, 3):
@@ -308,16 +288,16 @@ class Feeder(object):
         plt.show()
 
     def plot_voltages(self, ylabel="Voltage (pu)", length=48):
-        return self.plot_data(self.get_voltage_features(), ylabel, length)
+        return self.plot_data(self.voltage_features, ylabel, length)
 
     def plot_load_profiles(self, ylabel="Power (kW)", length=48):
-        return self.plot_data(self.get_load_features() * 500, ylabel, length)
+        return self.plot_data(self.load_features * 500, ylabel, length)
 
     def change_data_representation(self, representation="delta", data="voltage", inplace=True):
         if data == "voltage":
-            original_data = self.get_voltage_features()
+            original_data = self.voltage_features
         elif data == "load":
-            original_data = self.get_load_features()
+            original_data = self.load_features
         else:
             return print("enter voltage or load as data")
 
@@ -345,24 +325,33 @@ class Feeder(object):
                 new_self.set_load_features(np.array(new_data))
             return new_self
 
+    def truncate_voltages(self):
+        vf = self.voltage_features
+        vf = vf*230     #chanve from pu to V
+        vf = np.trunc(vf)
+        self.set_voltage_features(vf)
+
+
     def add_noise(self, error=0, data="voltage",inplace=True):
         if inplace:
             if data == "voltage":
-                voltage_features = self.get_voltage_features()
+                voltage_features = self.voltage_features
                 noise = np.random.normal(0, error, [np.size(voltage_features, 0), np.size(voltage_features, 1)])
                 self.set_voltage_features(voltage_features + noise)
             if data == "load":
-                load_features = self.get_load_features()
+                load_features = self.load_features
+                error = error * np.mean(load_features)
                 noise = np.random.normal(0, error, [np.size(load_features, 0), np.size(load_features, 1)])
                 self.set_load_features(load_features + noise)
         else:
             if data == "voltage":
-                voltage_features = self.get_voltage_features()
+                voltage_features = self.voltage_features
                 noise = np.random.normal(0, error, [np.size(voltage_features, 0), np.size(voltage_features, 1)])
                 new_self = copy.deepcopy(self)
                 new_self.set_voltage_features(voltage_features + noise)
             if data == "load":
-                load_features = self.get_load_features()
+                load_features = self.load_features
+                error = error * np.mean(load_features)
                 noise = np.random.normal(0, error, [np.size(load_features, 0), np.size(load_features, 1)])
                 new_self = copy.deepcopy(self)
                 new_self.set_load_features(load_features + noise)
@@ -441,7 +430,7 @@ class PhaseIdentification(object):
         Feeder.get_feature_list() ).
         """
         cluster_labels = PhaseIdentification.get_phase_labels()
-        voltage_data = Feeder.get_voltage_features()
+        voltage_data = Feeder.voltage_features
         plt.figure(figsize=(8, 6))
         markers = ["s", "o", "D", ">", "<", "v", "+"]
         x = np.arange(0, 48)
@@ -502,6 +491,162 @@ class Cluster(PhaseIdentification):
     def get_score(self):
         return self._score
 
+class PartialPhaseIdentification(Feeder):
+
+    def __init__(self, path_data='C:/Users/AlexH/OneDrive/Documenten/Julia/Master-thesis/POLA_data/',
+                 path_topology='C:/Users/AlexH/OneDrive/Documenten/Julia/Master-thesis/POLA/',
+                 feederID='65019_74469', include_three_phase=False, measurement_error=0.0,):
+        Feeder.__init__(self, path_data, path_topology, feederID, include_three_phase, measurement_error=0.0)
+        pl = self.get_phase_labels()
+        lf = self.load_features
+        self._load_features_total = np.zeros([3, len(lf[1])])
+        for i, col in enumerate(lf):
+            self._load_features_total[pl[i]-1] += col
+        self.add_noise(measurement_error, data="load")
+        self._partial_phase_labels = [0]*len(pl)
+
+    def sort_devices_by_variation(self):
+        """
+        Devices are sorted such that the phases with highest variability are handled first
+        using mean absolute variability (MAV)
+        """
+        lf = self.load_features
+        lf_var = self.get_variations_matrix()
+        i = np.array(self.get_IDs())
+
+        lf_mav = []
+        for col in lf_var:
+            lf_mav.append(sum(abs(col))/len(col))
+        lf_mav = np.array(lf_mav)
+        sort_order = lf_mav.argsort()
+        self._device_IDs = i[sort_order[::-1]]
+        self.set_load_features(lf[sort_order[::-1]])
+        self._phase_labels = np.array(self.get_phase_labels())[sort_order[::-1]]
+
+    def sub_load_profile(self,j,phase):
+        """
+        Subtracts the load profile from the total and assigns a phase label
+        """
+        self._load_features_total[phase-1] -= self.load_features[j]
+        self._partial_phase_labels[j] = phase
+
+
+    def get_variations_matrix(self):
+        var = []
+        for row in self.load_features:
+            new_row = [0] * len(row)
+            for i in range(1, len(row)):
+                new_row[i] = row[i] - row[i - 1]
+            var.append(new_row)
+        return np.array(var)
+
+    def get_total_variations_matrix(self):
+        var_tot = []
+        for row in self._load_features_total:
+            new_row = [0] * len(row)
+            for i in range(1, len(row)):
+                new_row[i] = row[i] - row[i - 1]
+            var_tot.append(new_row)
+        return np.array(var_tot)
+
+    def get_salient_variations(self,treshold):
+        """
+        Sets the salient variations taking into account the remaining devices and threshold
+        """
+        var = self.get_variations_matrix()
+        var_tot = self.get_total_variations_matrix()
+
+        sal = []
+        sal_i = []
+        for j in range(0,len(self.get_phase_labels())):
+            new_row = []
+            new_row_i = []
+            for t in range(1, len(var[0])):
+                pl = np.array(self._partial_phase_labels)
+                if abs(var[j,t]) > treshold*(sum(var_tot[:, t])-var[j, t]) / len(pl[pl == 0]):
+                    new_row += [var[j, t]]
+                    new_row_i += [t]
+            sal.append(new_row)
+            sal_i.append(new_row_i)
+        sal = np.array(sal)
+        sal_i = np.array(sal_i)
+        return sal, sal_i, var_tot, var
+
+    def find_phase(self, sal, sal_i, var_tot):
+        """
+        Chooses phase with highest correlation to device j,
+        based on it's salient factors sal (and the indexes therof sal_i
+        """
+        if len(sal) == 0:
+            raise AssertionError("No salient components found for ",j)
+        elif len(sal) < 3:
+            best_corr = -np.inf
+            for phase in range(0,3):
+                corr = sal[0] / var_tot[phase][sal_i][0]
+                if corr > best_corr:
+                    best_corr = corr
+                    best_phase = phase + 1
+        else:
+            mean_sal = np.mean(sal)
+            std_sal = np.std(sal)
+            best_phase = 0
+            best_corr = -np.inf
+            lf = self._load_features_total
+            for phase in range(0,3):
+                sal_phase = var_tot[phase][sal_i] # check if this is right
+                mean_sal_phase = np.mean(sal_phase)
+                std_sal_phase = np.std(sal_phase)
+                corr = 1.0/(len(sal)-1) * sum(np.multiply((sal-mean_sal), (sal_phase-mean_sal_phase)) /
+                                       np.multiply(std_sal, std_sal_phase))
+                if corr >= best_corr:
+                    best_corr = corr
+                    best_phase = phase + 1
+                #print(corr, " ", best_corr, " ", sal[j])
+        return best_phase, best_corr
+
+    def find_easy_device(self, sal_treshold=0.01, corr_treshold=0.0):
+        """
+        """
+        sal, sal_i, var_tot, var = self.get_salient_variations(treshold=sal_treshold)
+        counter = 0
+        for j in range(0,len(self.get_IDs())):
+            if len(sal[j]) > 0 and self._partial_phase_labels[j] == 0:
+                phase, corr = self.find_phase(sal[j],sal_i[j],var_tot)
+                if corr > corr_treshold:
+                    self.sub_load_profile(j,phase)
+                    counter += 1
+                    var_tot = self.get_total_variations_matrix()
+                #else:
+                    #print(corr, " /n")
+            if len(sal[j]) == 0:
+                id = self.get_IDs()
+                #print(id[j], " ", sal[j], " ", var[j])
+        progress = sum(np.array(self._partial_phase_labels) != 0) / len(self._partial_phase_labels)
+        acc = self.accuracy()
+        print(counter, " devices allocated, ", progress*100, "% done, accuracy ", acc*100, "%")
+        return progress
+
+    def load_correlation(self,sal_treshold=0.1, corr_treshold=0.2):
+        progress = 0.0
+        last_progress = 1.0
+
+        self.sort_devices_by_variation()
+
+        while progress < 1.0 and last_progress != progress:
+            last_progress = progress
+            progress = self.find_easy_device(sal_treshold, corr_treshold)
+
+
+    def accuracy(self):
+        correct_labels = self.get_phase_labels()
+        labels = self._partial_phase_labels
+        if len(labels) != len(correct_labels):
+            raise IndexError("Phase labels not of same length")
+        c = 0.0
+        for i in range(0, len(labels)):
+            if labels[i] == correct_labels[i]:
+                c = c + 1.0
+        return c / len(labels)
 
 def silhouette_analysis(Feeder, Cluster):
     """
@@ -509,13 +654,12 @@ def silhouette_analysis(Feeder, Cluster):
     You need to specify the Feeder object which contains all the used data as well as the Cluster object
     which you obtained by performing one on the clustering algorithm methods on the Feeder.
     """
-    features = Feeder.get_features()
-    cluster_labels = Cluster.get_clusters()
+    features = Feeder.voltage_features
+    cluster_labels = Cluster.get_phase_labels()
     n_clusters = Cluster.get_n_clusters()
-    feature_list = Feeder.get_feature_list()
     plt.figure(figsize=(22, 10))
-    plt.set_xlim([-0.1, 1])
-    plt.set_ylim([0, len(features) + (n_clusters + 1) * 10])
+    plt.xlim([-0.1, 1])
+    plt.ylim([0, len(features) + (n_clusters + 1) * 10])
 
     if Cluster.is_normalised():
         scaler = StandardScaler()
@@ -529,7 +673,7 @@ def silhouette_analysis(Feeder, Cluster):
         sample_silhouette_values = silhouette_samples(features, cluster_labels)
 
     y_lower = 10
-    for i in range(n_clusters):
+    for i in range(1, n_clusters+1):
         # Aggregate the silhouette scores for samples belonging to
         # cluster i, and sort them
         ith_cluster_silhouette_values = \
@@ -539,29 +683,29 @@ def silhouette_analysis(Feeder, Cluster):
 
         size_cluster_i = ith_cluster_silhouette_values.shape[0]
         y_upper = y_lower + size_cluster_i
-        color = plt.cm.viridis(float(i) / (n_clusters - 1))
+        color = plt.cm.viridis(float(i) / (n_clusters))
 
-        ax1.fill_betweenx(np.arange(y_lower, y_upper),
+        plt.fill_betweenx(np.arange(y_lower, y_upper),
                           0, ith_cluster_silhouette_values, facecolor=color, edgecolor=color, alpha=0.7)
 
         # Label the silhouette plots with their cluster numbers at the middle
-        ax1.text(-0.05, y_lower + 0.5 * size_cluster_i, str(i + 1))
+        plt.text(-0.05, y_lower + 0.5 * size_cluster_i, str(i))
 
         # Compute the new y_lower for next plot
         y_lower = y_upper + 10  # 10 for the 0 samples
 
-    ax1.set_title("The silhouette plot for the various clusters.")
-    ax1.set_xlabel("The silhouette coefficient values")
-    ax1.set_ylabel("Cluster label")
+    plt.title("The silhouette plot for the various clusters.")
+    plt.xlabel("The silhouette coefficient values")
+    plt.ylabel("Cluster label")
 
     # The vertical line for average silhouette score of all the values
-    ax1.axvline(x=silhouette_avg, color="grey", linestyle="--", label='average silhouette coef %f3' % silhouette_avg)
-    ax1.axvline(x=silhouette_global, color="grey", linestyle="-.",
+    plt.axvline(x=silhouette_avg, color="grey", linestyle="--", label='average silhouette coef %f3' % silhouette_avg)
+    plt.axvline(x=silhouette_global, color="grey", linestyle="-.",
                 label='global silhouette coef %f3' % silhouette_global)
-    ax1.legend(loc='upper right')
+    plt.legend(loc='upper right')
 
-    ax1.set_yticks([])  # Clear the yaxis labels / ticks
-    ax1.set_xticks([-0.1, 0, 0.2, 0.4, 0.6, 0.8, 1])
+    plt.yticks([])  # Clear the yaxis labels / ticks
+    plt.xticks([-0.1, 0, 0.2, 0.4, 0.6, 0.8, 1])
     plt.show()
 
 
@@ -621,63 +765,6 @@ def global_silhouette_criterion(features, cluster_labels):
     for i in range(0, nb_clusters):
         score += scores[cluster_labels == i].mean()
     return score / nb_clusters
-
-
-def consensus_matrix(FeatureSet, n, min_n_clusters, max_n_clusters):
-    """
-    Function to build the consensus matrix needed for ensemble clustering
-    """
-    length = len(FeatureSet.get_feature(0))
-    similarity_matrix = np.zeros([length, length])
-    for i in range(0, n):
-        cluster_labels = FeatureSet.k_means_clustering(
-            n_clusters=random.randint(min_n_clusters, max_n_clusters)).get_clusters()
-        for j in range(0, length):
-            for k in range(j + 1, length):
-                if cluster_labels[j] == cluster_labels[k]:
-                    similarity_matrix[j][k] += 1
-                    similarity_matrix[k][j] += 1
-    return similarity_matrix / n
-
-
-def compare_ensemble_algorithms(FeatureSet, n, range):
-    """
-    Makes a graph to compare the results of the different ensemble algorithms against each other
-    """
-    results = {"Average fixed": dict(), "Average varying": dict(), "Single fixed": dict(), "Single varying": dict()}
-    scores = np.zeros([4, len(range)])
-    mat = consensus_matrix(FeatureSet, n, min(range), max(range))
-    scaler = StandardScaler()
-    features = FeatureSet.get_features()
-    features_normalised = scaler.fit_transform(features)
-    for i in range:
-        mat_2 = consensus_matrix(FeatureSet, n, i, i)
-        cluster_labels = AgglomerativeClustering(n_clusters=i, linkage='average').fit(mat).labels_
-        scores[0][i - range[0]] = silhouette_score(features_normalised, cluster_labels)
-        results["Average varying"][i] = Cluster(cluster_labels, 'Cluster ensemble', True, 1, 'avg_silhouette',
-                                                scores[0][i - range[0]])
-
-        cluster_labels = AgglomerativeClustering(n_clusters=i, linkage='average').fit(mat_2).labels_
-        scores[1][i - range[0]] = silhouette_score(features_normalised, cluster_labels)
-        results["Average fixed"][i] = Cluster(cluster_labels, 'Cluster ensemble', True, 1, 'avg_silhouette',
-                                              scores[1][i - range[0]])
-
-        cluster_labels = AgglomerativeClustering(n_clusters=i, linkage='single').fit(mat).labels_
-        scores[2][i - range[0]] = silhouette_score(features_normalised, cluster_labels)
-        results["Single varying"][i] = Cluster(cluster_labels, 'Cluster ensemble', True, 1, 'avg_silhouette',
-                                               scores[2][i - range[0]])
-
-        cluster_labels = AgglomerativeClustering(n_clusters=i, linkage='single').fit(mat_2).labels_
-        scores[3][i - range[0]] = silhouette_score(features_normalised, cluster_labels)
-        results["Single fixed"][i] = Cluster(cluster_labels, 'Cluster ensemble', True, 1, 'avg_silhouette',
-                                             scores[2][i - range[0]])
-    plt.plot(range, scores[0, :], label="average linkage")
-    plt.plot(range, scores[2, :], label="single linkage")
-    plt.plot(range, scores[1, :], label="average linkage fixed K")
-    plt.plot(range, scores[3, :], label="single linkage fixed K")
-    plt.legend()
-    plt.show()
-    return results, scores
 
 
 def compare_data_representations(feeder, error_range=np.arange(0, 0.01, 0.001), n_repeats=1, algorithm="clustering"):
