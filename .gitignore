@@ -146,6 +146,8 @@ dmypy.json
 
 #EXTRA
 
-/_pycache_/
+/__pycache__/
 /.idea/
 /parsers/
+phase_identification.py
+case_studies.py

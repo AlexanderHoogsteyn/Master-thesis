@@ -8,13 +8,8 @@ class PhaseIdentification(Feeder):
 
     def __init__(self, feederID='65019_74469', include_three_phase=False, measurement_error=0.0):
         Feeder.__init__(self, feederID, include_three_phase, measurement_error)
-    def __init__(self, phase_labels, algorithm, n_repeats=1, criterion='global_silhouette', score=np.nan):
-        self._phase_labels = phase_labels
-        self._algorithm = algorithm
-        self._n_clusters = 3
-        self._n_repeats = n_repeats
-        self._criterion = criterion
-        self._score = score
+
+        self._score = np.nan
 
     def hierarchal_clustering(self, n_clusters=3, normalized=True, criterion='avg_silhouette'):
         """
@@ -32,7 +27,10 @@ class PhaseIdentification(Feeder):
             score = global_silhouette_criterion(data, labels)
         if criterion == 'avg_silhouette':
             score = silhouette_score(data, labels)
-        return Cluster(labels, 'hierarchal clustering', normalized, 1, criterion, score)
+        self._algorithm = 'hierarchal clustering'
+        self._n_repeats = 1
+        self.partial_phase_labels = labels + 1
+        self.match_labels()
 
     def k_means_clustering(self, n_clusters=3, normalized=True, n_repeats=1, criterion='avg_silhouette'):
         """
@@ -66,8 +64,10 @@ class PhaseIdentification(Feeder):
                     score = i_silhouette_global
                     best_cluster_labels = i_cluster_labels
 
-        self.
-        return Cluster(best_cluster_labels, 'k-means++', normalized, n_repeats, criterion, score)
+        self._algorithm = 'k-means++'
+        self._n_repeats = n_repeats
+        self.partial_phase_labels = best_cluster_labels + 1
+        self.match_labels()
 
     def k_medoids_clustering(self, n_clusters=3, normalized=True, n_repeats=1, criterion='global_silhouette'):
         """
@@ -100,7 +100,10 @@ class PhaseIdentification(Feeder):
                 if i_silhouette_global > score:
                     score = i_silhouette_global
                     best_cluster_labels = i_cluster_labels
-        return Cluster(best_cluster_labels, 'k-medoids++', normalized, n_repeats, criterion, score)
+        self._algorithm = 'k-medoids++'
+        self._n_repeats = n_repeats
+        self.partial_phase_labels = best_cluster_labels + 1
+        self.match_labels()
 
     def gaussian_mixture_model(self, n_clusters=3, normalized=True, n_repeats=1):
         """
@@ -126,6 +129,11 @@ class PhaseIdentification(Feeder):
             if i_silhouette_avg > score:
                 score = i_silhouette_avg
                 best_cluster_labels = i_cluster_labels
+
+        self._algorithm = 'Gaussian mixture model'
+        self._n_repeats = n_repeats
+        self.partial_phase_labels = best_cluster_labels + 1
+        self.match_labels()
         return Cluster(best_cluster_labels, 'Gaussian mixture model', normalized, n_repeats, 'avg_silhouette', score)
 
     def get_reference_3phase_customer(self):
@@ -137,7 +145,7 @@ class PhaseIdentification(Feeder):
         else:
             profiles = self.voltage_features
             profiles = profiles[id_ == id_3]
-            labels = self.get_phase_labels()
+            labels = self.phase_labels
             labels = labels[id_ == id_3]
         return labels, profiles
 
@@ -155,17 +163,13 @@ class PhaseIdentification(Feeder):
                     label = labels[phase]
             phase_labels += [label]
             scores += [corr]
-        return PhaseIdentification(phase_labels, "voltage_correlation", n_repeats=1, criterion='None', score=scores)
+        self._algorithm = 'voltage_correlation'
+        self._n_repeats = 1
+        self.partial_phase_labels = phase_labels
 
-    def get_phase_labels(self):
-        return self._phase_labels
-
-    def set_phase_labels(self, labels):
-        self._phase_labels = labels
-
-    def accuracy(self, Feeder):
-        correct_labels = Feeder.get_phase_labels()
-        labels = self.get_phase_labels()
+    def accuracy(self):
+        correct_labels = self.partial_phase_labels
+        labels = self.phase_labels
         if len(labels) != len(correct_labels):
             raise IndexError("Phase labels not of same length")
         c = 0.0
@@ -174,10 +178,10 @@ class PhaseIdentification(Feeder):
                 c = c + 1.0
         return c / len(labels)
 
-    def find_wrong_IDs(self, Feeder):
-        correct_labels = Feeder.get_phase_labels()
-        labels = self.get_phase_labels()
-        id_s = Feeder.device_IDs
+    def find_wrong_IDs(self):
+        correct_labels = self.phase_labels
+        labels = self.partial_phase_labels
+        id_s = self.device_IDs
         wrong_ids = []
         if len(labels) != len(correct_labels):
             raise IndexError("Phase labels not of same length")
@@ -186,12 +190,12 @@ class PhaseIdentification(Feeder):
                 wrong_ids += [id_s[i]]
         return np.array(wrong_ids)
 
-    def match_labels(self, Feeder):
-        best_labels = self.get_phase_labels()
+    def match_labels(self):
+        best_labels = self.partial_phase_labels
         best_acc = 0.0
         for i in range(0, 7):
-            acc = self.accuracy(Feeder)
-            labels = self.get_phase_labels()
+            acc = self.accuracy()
+            labels = self.partial_phase_labels
             if acc > best_acc:
                 best_acc = acc
                 best_labels = labels
@@ -201,12 +205,12 @@ class PhaseIdentification(Feeder):
                         labels[j] = 2
                     elif labels[j] == 2:
                         labels[j] = 1
-                self.set_phase_labels(np.array(labels))
+                self.partial_phase_labels = np.array(labels)
             else:
-                self.set_phase_labels(list(map(lambda x: x % 3 + 1, labels)))
-        self.set_phase_labels(np.array(best_labels))
+                self.partial_phase_labels = (list(map(lambda x: x % 3 + 1, labels)))
+        self.partial_phase_labels = np.array(best_labels)
 
-    def plot_voltages(Feeder, PhaseIdentification, x_axis=None, y_axis=None):
+    def plot_voltages(self, length=48, x_axis=None, y_axis=None):
         """
         Makes a 2D plot of the resulting clusters. You need to specify the Feeder object which contains all the used data
         as well as the Cluster object which you obtained by performing one on the clustering algorithm methods
@@ -215,67 +219,18 @@ class PhaseIdentification(Feeder):
         string corresponding to that feature such as "Yearly consumption per customer (kWh)" (These can be found using
         Feeder.get_feature_list() ).
         """
-        cluster_labels = PhaseIdentification.get_phase_labels()
-        voltage_data = Feeder.voltage_features
+        voltage_data = self.voltage_features
         plt.figure(figsize=(8, 6))
         markers = ["s", "o", "D", ">", "<", "v", "+"]
-        x = np.arange(0, 48)
-        for i in range(0, Cluster.get_n_clusters()):
-            color = plt.cm.viridis(float(i) / (float(Cluster.get_n_clusters()) - 1.0))
+        x = np.arange(0, length)
+        for i in range(0, 3):
+            color = plt.cm.viridis(float(i) / (float(self.nb_customers) - 1.0))
             for line in voltage_data:
-                plt.plot(x, line, color=color, alpha=0.85)
+                plt.plot(x, line[0:length], color=color, alpha=0.85)
         plt.xlabel(x_axis)
         plt.ylabel(y_axis)
-        plt.title(Cluster.get_algorithm() + " with n_clusters = %d" % Cluster.get_n_clusters() + Cluster.get_repeats())
+        plt.title(self._algorithm)
         plt.show()
-
-
-class Cluster(PhaseIdentification):
-    """
-    Special case of  PhaseIdentification class when result is obtained by performing a clustering method.
-    A cluster object contains all info on the result obtained after performing a clustering algorithm. Most notably the
-    labels to identify which cluster a feeder is allocated to. Besides that, the object contains some metadata about
-    the number of clusters, which algorithm was used, the score of the result according to the specified criterion.
-    """
-
-    def __init__(self, clusters, algorithm, normalized=False, n_repeats=1, criterion='global_silhouette', score=np.nan):
-        self._phase_labels = clusters + 1
-        self._algorithm = algorithm
-        self._normalized = normalized
-        self._n_clusters = np.max(clusters) + 1
-        self._n_repeats = n_repeats
-        self._criterion = criterion
-        self._score = score
-
-    def get_algorithm(self):
-        return self._algorithm
-
-    def get_normalisation(self):
-        if self._normalized == True:
-            return 'normalized'
-        else:
-            return 'not normalized'
-
-    def get_n_repeats(self):
-        return self._n_repeats
-
-    def get_repeats(self):
-        if self.get_n_repeats() == 1:
-            return ''
-        else:
-            return ' repeated %d times' % self.get_n_repeats()
-
-    def get_criterion(self):
-        return self._criterion
-
-    def is_normalised(self):
-        return self._normalized
-
-    def get_n_clusters(self):
-        return self._n_clusters
-
-    def get_score(self):
-        return self._score
 
     def add_noise(self, error=0, data="voltage",inplace=True):
         if inplace:

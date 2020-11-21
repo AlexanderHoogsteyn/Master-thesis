@@ -20,7 +20,7 @@ class Feeder(object):
     such as list of the features used and the ID's of the feeders.
     """
 
-    def __init__(self, feederID='65019_74469', include_three_phase=False, measurement_error=0.0):
+    def __init__(self, feederID='65019_74469', include_three_phase=False, measurement_error=0.0,length=24):
         """
         Initialize the feeder object by reading out the data from JSON files in the specified directory
         """
@@ -28,6 +28,7 @@ class Feeder(object):
         dir = os.path.dirname(os.path.realpath(__file__))
         self._path_data = os.path.join(dir, "POLA_data/")
         self._path_topology = os.path.join(dir, "POLA/")
+        self.length = length
 
 
         configuration_file = self._path_topology + feederID + '_configuration.json'
@@ -60,14 +61,14 @@ class Feeder(object):
                 #print("device: ", deviceID, " bus: ", busID, " phase: ", device_phases)
                 for phase in device_phases:
                     if phase == 1:
-                        voltage_features.append(voltage_data[str(busID)]["phase_A"])
-                        load_features.append(load_data[str(deviceID)]["phase_A"])
+                        voltage_features.append(voltage_data[str(busID)]["phase_A"][0:length])
+                        load_features.append(load_data[str(deviceID)]["phase_A"][0:length])
                     elif phase == 2:
-                        voltage_features.append(voltage_data[str(busID)]["phase_B"])
-                        load_features.append(load_data[str(deviceID)]["phase_B"])
+                        voltage_features.append(voltage_data[str(busID)]["phase_B"][0:length])
+                        load_features.append(load_data[str(deviceID)]["phase_B"][0:length])
                     elif phase == 3:
-                        voltage_features.append(voltage_data[str(busID)]["phase_C"])
-                        load_features.append(load_data[str(deviceID)]["phase_C"])
+                        voltage_features.append(voltage_data[str(busID)]["phase_C"][0:length])
+                        load_features.append(load_data[str(deviceID)]["phase_C"][0:length])
                     else:
                         raise NameError("Unkown phase connection")
                 if len(device_phases) == 3:
@@ -76,6 +77,17 @@ class Feeder(object):
                 else:
                     self.device_IDs += [deviceID]
                 self.phase_labels += device_phases
+
+        self._voltage_features_transfo = np.zeros([3, length])
+        self._voltage_features_transfo[0] = voltage_data["transfo"]["phase_A"][0:length]
+        self._voltage_features_transfo[0] = voltage_data["transfo"]["phase_B"][0:length]
+        self._voltage_features_transfo[0] = voltage_data["transfo"]["phase_C"][0:length]
+
+        self._load_features_transfo = np.zeros([3, length])
+        self._load_features_transfo[0] = load_data["transfo"]["phase_A"][0:length]
+        self._load_features_transfo[0] = load_data["transfo"]["phase_B"][0:length]
+        self._load_features_transfo[0] = load_data["transfo"]["phase_C"][0:length]
+
         noise = np.random.normal(0, measurement_error, [np.size(voltage_features, 0), np.size(voltage_features, 1)])
         self.voltage_features = np.array(voltage_features) + noise
         self.load_features = np.array(load_features)
@@ -102,7 +114,6 @@ class Feeder(object):
             i = i + 1
         plt.xlabel("time step (30 min intervals")
         plt.ylabel(ylabel)
-        # plt.title(Cluster.get_algorithm() + " with n_clusters = %d" % Cluster.get_n_clusters() + Cluster.get_repeats())
         plt.show()
 
     def plot_voltages(self, ylabel="Voltage (pu)", length=48):
