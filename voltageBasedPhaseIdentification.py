@@ -6,8 +6,8 @@ class PhaseIdentification(Feeder):
     It contains most notably an array with the found phase labels by the method
     """
 
-    def __init__(self, feederID='65019_74469', include_three_phase=False, measurement_error=0.0):
-        Feeder.__init__(self, feederID, include_three_phase, measurement_error)
+    def __init__(self, feederID='65019_74469', include_three_phase=False, measurement_error=0.0,length=24):
+        Feeder.__init__(self, feederID, include_three_phase, measurement_error,length=length)
 
         self._score = np.nan
 
@@ -158,6 +158,25 @@ class PhaseIdentification(Feeder):
             label = np.nan
             for phase in range(0, 3):
                 n_corr = np.correlate(device, profiles[phase])
+                if n_corr > corr:
+                    corr = n_corr
+                    label = labels[phase]
+            phase_labels += [label]
+            scores += [corr]
+        self._algorithm = 'voltage_correlation'
+        self._n_repeats = 1
+        self.partial_phase_labels = phase_labels
+
+    def voltage_correlation_transfo_ref(self):
+        labels = [1,2,3]
+        profiles = self._voltage_features_transfo
+        phase_labels = []
+        scores = []
+        for device in self.voltage_features:
+            corr = 0
+            label = np.nan
+            for phase in range(0, 3):
+                n_corr = np.correlate(device, profiles[phase])[0]
                 if n_corr > corr:
                     corr = n_corr
                     label = labels[phase]

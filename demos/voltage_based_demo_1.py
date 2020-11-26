@@ -17,7 +17,7 @@ include_A = True
 include_B = True
 include_C = True
 voltage_noise = 0.00
-include_three_phase = False
+include_three_phase = True
 length = 24*7
 n_repeats = 1
 
@@ -30,7 +30,7 @@ representation = "delta"
 """
 Choose Algorithm between: "clustering", "correlation", "load-correlation"
 """
-algorithm = "clustering"
+algorithm = "correlation"
 
 included_feeders = []
 if include_A:
@@ -75,6 +75,6 @@ for feeder_id in included_feeders:
         compare_algorithms(feeder, 'accuracy', n_repeats, range=range(2, 5))
 
     elif algorithm == "correlation":
-        feeder.voltage_correlation()
-        print("Accuracy using voltage correlation: ", feeder.accuracy(feeder))
-        print("wrong device ID's: ", feeder.find_wrong_IDs(feeder))
+        feeder.voltage_correlation_transfo_ref()
+        print("Accuracy using voltage correlation: ", feeder.accuracy())
+        print("wrong device ID's: ", feeder.find_wrong_IDs())
