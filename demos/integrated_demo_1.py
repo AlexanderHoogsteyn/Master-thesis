@@ -15,7 +15,7 @@ include_C = True
 load_noise = 0.0   #pu
 include_three_phase = False
 length = 24*20
-volt_assist = 0.0
+volt_assist = 1
 
 included_feeders = []
 if include_A:
@@ -26,8 +26,8 @@ if include_C:
     included_feeders.append("1830188_2181475")
 
 for feeder_id in included_feeders:
-    load_feeder = IntegratedPhaseIdentification(measurement_error=load_noise, feederID=feeder_id,
+    feeder = IntegratedPhaseIdentification(measurement_error=load_noise, feederID=feeder_id,
                     include_three_phase=include_three_phase, length=length)
-    load_feeder.voltage_assisted_load_correlation(sal_treshold_load=0.4, sal_treshold_volt=0.0, corr_treshold=0, volt_assist=volt_assist)
-    acc = load_feeder.accuracy()
-    print("Accuracy", acc*100, "%")
+    feeder.voltage_assisted_load_correlation(sal_treshold_load=0.4, sal_treshold_volt=0.0, corr_treshold=0, volt_assist=volt_assist)
+    feeder.plot_voltages(length=length)
+    feeder.plot_load_profiles(length=length)

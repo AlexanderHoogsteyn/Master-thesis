@@ -12,9 +12,10 @@ I can improve this by making shure an additional 10 of missing is added in stead
 include_A = True
 include_B = True
 include_C = True
-load_noise = 0.0   #pu
+load_noise = 0.01   #pu
 include_three_phase = False
 length = 24*7
+volt_assist = 1
 
 included_feeders = []
 if include_A:
@@ -28,7 +29,7 @@ for feeder_id in included_feeders:
     length_range = np.arange(1, 15)
     missing_range = np.arange(0, 1.00, 0.10)
     tot_scores = np.zeros([len(missing_range), len(length_range)])
-    reps = 1
+    reps = 5
     for rep in range(0,reps):
         scores = []
         for i, value in enumerate(missing_range):
@@ -37,7 +38,7 @@ for feeder_id in included_feeders:
                 load_feeder = IntegratedMissingPhaseIdentification(measurement_error=load_noise, feederID=feeder_id,
                                                                 include_three_phase=include_three_phase, length=length*24,
                                                                 missing_ratio=value)
-                load_feeder.voltage_assisted_load_correlation(sal_treshold_load=0.4, sal_treshold_volt=0.0, corr_treshold=0.0, volt_assist=1.0)
+                load_feeder.voltage_assisted_load_correlation(sal_treshold_load=0.4, sal_treshold_volt=0.0, corr_treshold=0.0, volt_assist=volt_assist)
                 col += [load_feeder.accuracy()]
             scores.append(col)
         tot_scores += np.array(scores)
@@ -58,6 +59,6 @@ for feeder_id in included_feeders:
     plt.xlabel("Duration (days) that hourly data was collected")
     plt.ylabel("Percentage of customers with smart meter")
     plt.yticks(fontsize=12)
-    plt.show()
+    #plt.show()
     plt.savefig("accuracy_low_sm_pen_integrated_"+feeder_id)
-    plt.close()
+    #plt.close()

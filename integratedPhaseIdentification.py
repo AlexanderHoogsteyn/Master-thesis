@@ -92,8 +92,8 @@ class IntegratedPhaseIdentification(PartialPhaseIdentification):
                 if std_sal_phase_volt == 0:
                     volt_invalid = True
 
-                corr_volt = 1.0/(len(sal_volt)-1) * sum(np.multiply((sal_volt-mean_sal_volt), (sal_phase_volt-mean_sal_phase_volt)) /
-                                       np.multiply(std_sal_volt, std_sal_phase_volt))
+                corr_volt = 1.0/(len(sal_volt)-1) * sum((sal_volt-mean_sal_volt)*(sal_phase_volt-mean_sal_phase_volt))\
+                    / (std_sal_volt*std_sal_phase_volt)
 
                 sal_phase_load = sal_transfo_load[phase]
                 mean_sal_phase_load = np.mean(sal_phase_load)
@@ -101,8 +101,9 @@ class IntegratedPhaseIdentification(PartialPhaseIdentification):
                 if std_sal_phase_load == 0:
                     load_invalid = True
 
-                corr_load = 1.0/(len(sal_load)-1) * sum(np.multiply((sal_load-mean_sal_load), (sal_phase_load-mean_sal_phase_load)) /
-                                       np.multiply(std_sal_load, std_sal_phase_load))
+                corr_load = 1.0/(len(sal_load)-1) * sum((sal_load-mean_sal_load)*(sal_phase_load-mean_sal_phase_load))\
+                    / (std_sal_load * std_sal_phase_load)
+
                 if corr_load == np.nan:
                     corr_load = -np.inf
                 #print(phase, corr_volt)
@@ -113,7 +114,6 @@ class IntegratedPhaseIdentification(PartialPhaseIdentification):
                     corr = corr_load
                 else:
                     corr = (1-volt_assist)*corr_load + volt_assist*corr_volt
-                print(corr)
                 if corr > best_corr:
                     best_corr = corr
                     best_phase = phase + 1
@@ -125,15 +125,21 @@ class IntegratedMissingPhaseIdentification(IntegratedPhaseIdentification):
     def __init__(self, feederID = '65019_74469', include_three_phase = False, measurement_error = 0.0, length = 24, missing_ratio = 0.0):
         IntegratedPhaseIdentification.__init__(self, feederID, include_three_phase, measurement_error=measurement_error, length=length)
         self.nb_missing = 0
-        for col in self.load_features:
+        i_missing = []
+        for i, col in enumerate(self.load_features):
             if sum(col) == 0:
                 self.nb_missing += 1
+                i_missing += [i]
         nb_to_add = round(len(self.phase_labels)*missing_ratio) - self.nb_missing
+        i_missing = np.array([i_missing])
 
-        while nb_to_add > 0:
-            self.load_features[random.randint(0, len(self.phase_labels) - 1)] = np.zeros(self.length)
-            nb_to_add -= 1
+        i_to_add = np.random.choice(np.setdiff1d(np.arange(len(self.phase_labels)), i_missing), nb_to_add, replace=False)
+        self.load_features[i_to_add] = np.zeros(self.length)
+        self.missing = np.concatenate([i_missing, i_to_add])
 
     def add_missing(self, ratio):
         nb = round(len(self.phase_labels)*ratio)
-        raise NotImplementedError
+        nb_to_add = nb - len(self.missing)
+        i_to_add = np.random.choice(np.setdiff1d(np.arange(len(self.phase_labels)), self.missing), nb_to_add, replace=False)
+        self.load_features[i_to_add] = np.zeros(self.length)
+        self.missing = np.concatenate([self.missing, i_to_add])

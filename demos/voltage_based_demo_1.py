@@ -18,14 +18,14 @@ include_B = True
 include_C = True
 voltage_noise = 0.00
 include_three_phase = True
-length = 24*7
+length = 24*20
 n_repeats = 1
 
 """
 Choose data representation between: "raw", "delta", "binary" or
 do a comparison using "comparison"
 """
-representation = "delta"
+representation = "raw"
 
 """
 Choose Algorithm between: "clustering", "correlation", "load-correlation"
@@ -41,7 +41,7 @@ if include_C:
     included_feeders.append("1830188_2181475")
 
 for feeder_id in included_feeders:
-    feeder = PhaseIdentification(measurement_error=voltage_noise, feederID=feeder_id, include_three_phase=include_three_phase)
+    feeder = PhaseIdentification(measurement_error=voltage_noise, feederID=feeder_id, include_three_phase=include_three_phase,length=length)
     feeder_copy = copy.deepcopy(feeder)
     if representation == "comparison":
         error_range = np.arange(0, 0.02, 0.0005)
@@ -75,6 +75,9 @@ for feeder_id in included_feeders:
         compare_algorithms(feeder, 'accuracy', n_repeats, range=range(2, 5))
 
     elif algorithm == "correlation":
+
         feeder.voltage_correlation_transfo_ref()
+        feeder.plot_voltages(length=length)
+        feeder.plot_load_profiles(length=length)
         print("Accuracy using voltage correlation: ", feeder.accuracy())
         print("wrong device ID's: ", feeder.find_wrong_IDs())

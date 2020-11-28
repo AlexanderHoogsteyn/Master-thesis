@@ -7,10 +7,11 @@ class PartialPhaseIdentification(Feeder):
     """
 
     def __init__(self, feederID='65019_74469', include_three_phase=False, measurement_error=0.0,length =24):
-        Feeder.__init__(self, feederID, include_three_phase, measurement_error, length=length)
+        Feeder.__init__(self, feederID, include_three_phase, measurement_error=0, length=length)
 
         pl = self.phase_labels
         self.add_noise(measurement_error, data="load")
+        self.add_noise(measurement_error, data="voltage")
         self.partial_phase_labels = np.array([0] * len(pl))
 
     def sort_devices_by_variation(self):
@@ -19,6 +20,7 @@ class PartialPhaseIdentification(Feeder):
         using mean absolute variability (MAV)
         """
         lf = self.load_features
+        vf = self.voltage_features
         lf_var = self.get_load_variations_matrix()
         i = np.array(self.device_IDs)
 
@@ -29,6 +31,7 @@ class PartialPhaseIdentification(Feeder):
         sort_order = lf_mav.argsort()
         self.device_IDs = i[sort_order[::-1]]
         self.load_features = lf[sort_order[::-1]]
+        self.voltage_features = vf[sort_order[::-1]]
         self.phase_labels = np.array(self.phase_labels)[sort_order[::-1]]
 
     def sub_load_profile(self,j,phase):
@@ -190,10 +193,10 @@ class PartialPhaseIdentification(Feeder):
 
     def add_noise(self, error=0, data="voltage"):
         if data == "voltage":
-            noise = np.random.normal(0, error, [np.size(self.voltage_features, 0), np.size(self.voltage_features, 1)])
+            noise = np.random.normal(0, error/3, [np.size(self.voltage_features, 0), np.size(self.voltage_features, 1)])
             self.voltage_features = self.voltage_features + noise
         if data == "load":
-            error = error * np.mean(self.load_features)
+            error = error *0.007/3
             noise = np.random.normal(0, error, [np.size(self.load_features, 0), np.size(self.load_features, 1)])
             self.load_features = self.load_features + noise
 
