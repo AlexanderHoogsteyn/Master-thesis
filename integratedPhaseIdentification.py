@@ -6,7 +6,7 @@ class IntegratedPhaseIdentification(PartialPhaseIdentification):
     def __init__(self, feederID='65019_74469', include_three_phase=False, measurement_error=0.0,length=24):
         PartialPhaseIdentification.__init__(self, feederID, include_three_phase, measurement_error, length=length)
 
-    def voltage_assisted_load_correlation(self, sal_treshold_load=0.4, sal_treshold_volt=0.4, corr_treshold=0.2, volt_assist=0.0):
+    def voltage_assisted_load_correlation(self, sal_treshold_load=1, sal_treshold_volt=0.4, corr_treshold=0.2, volt_assist=0.0,length=24):
         """
         Also uses salient voltage measurements, therefore also feeder voltage needed
         """
@@ -20,17 +20,15 @@ class IntegratedPhaseIdentification(PartialPhaseIdentification):
             last_progress = progress
 
             # Load salient components
-            var_load = self.get_load_variations_matrix()
-            var_transfo_load = self.get_transfo_load_variations_matrix()
+            var_load = np.diff(self.load_features[:, 0:length], 1)
+            var_transfo_load = np.diff(self.load_features_transfo[:, 0:length], 1)
             sal_load, sal_transfo_load = self.get_salient_variations(sal_treshold_load, var_load, var_transfo_load)
-            nb_sal = [len(i) for i in sal_load]
             #print("# Salient components load between ", min(nb_sal), " and ", max(nb_sal))
 
             # Voltage salient components
-            var_volt = self.get_voltage_variations_matrix()
-            var_transfo_volt = self.get_transfo_voltage_variations_matrix()
-            sal_volt, sal_transfo_volt = self.get_salient_variations(sal_treshold_volt, var_volt, var_transfo_volt)
-            nb_sal = [len(i) for i in sal_volt]
+            var_volt = np.diff(self.voltage_features[:, 0:length], 1)
+            var_transfo_volt = np.diff(self._voltage_features_transfo[:, 0:length], 1)
+            #sal_volt, sal_transfo_volt = self.get_salient_variations(sal_treshold_volt, var_volt, var_transfo_volt)
             #("# Salient components voltage between ", min(nb_sal), " and ", max(nb_sal))
 
             # Reactive power salient components?
@@ -92,8 +90,12 @@ class IntegratedPhaseIdentification(PartialPhaseIdentification):
                 if std_sal_phase_volt == 0:
                     volt_invalid = True
 
-                corr_volt = 1.0/(len(sal_volt)-1) * sum((sal_volt-mean_sal_volt)*(sal_phase_volt-mean_sal_phase_volt))\
-                    / (std_sal_volt*std_sal_phase_volt)
+                try:
+                    corr_volt = 1.0/(len(sal_volt)-1) * sum((sal_volt-mean_sal_volt)*(sal_phase_volt-mean_sal_phase_volt))\
+                        / (std_sal_volt*std_sal_phase_volt)
+                except ZeroDivisionError:
+                    corr_volt = np.nan
+                    voltage_invalid = True
 
                 sal_phase_load = sal_transfo_load[phase]
                 mean_sal_phase_load = np.mean(sal_phase_load)
@@ -101,8 +103,12 @@ class IntegratedPhaseIdentification(PartialPhaseIdentification):
                 if std_sal_phase_load == 0:
                     load_invalid = True
 
-                corr_load = 1.0/(len(sal_load)-1) * sum((sal_load-mean_sal_load)*(sal_phase_load-mean_sal_phase_load))\
+                try:
+                    corr_load = 1.0/(len(sal_load)-1) * sum((sal_load-mean_sal_load)*(sal_phase_load-mean_sal_phase_load))\
                     / (std_sal_load * std_sal_phase_load)
+                except ZeroDivisionError:
+                    corr_load = np.nan
+                    load_invalid = True
 
                 if corr_load == np.nan:
                     corr_load = -np.inf
@@ -121,6 +127,7 @@ class IntegratedPhaseIdentification(PartialPhaseIdentification):
         return best_phase, best_corr
 
 
+
 class IntegratedMissingPhaseIdentification(IntegratedPhaseIdentification):
     def __init__(self, feederID = '65019_74469', include_three_phase = False, measurement_error = 0.0, length = 24, missing_ratio = 0.0):
         IntegratedPhaseIdentification.__init__(self, feederID, include_three_phase, measurement_error=measurement_error, length=length)
@@ -131,15 +138,33 @@ class IntegratedMissingPhaseIdentification(IntegratedPhaseIdentification):
                 self.nb_missing += 1
                 i_missing += [i]
         nb_to_add = round(len(self.phase_labels)*missing_ratio) - self.nb_missing
-        i_missing = np.array([i_missing])
+        if nb_to_add < 0:
+            nb_to_add = 0
+        i_missing = np.array(i_missing)
 
         i_to_add = np.random.choice(np.setdiff1d(np.arange(len(self.phase_labels)), i_missing), nb_to_add, replace=False)
-        self.load_features[i_to_add] = np.zeros(self.length)
+        self.load_features[i_to_add] = np.full(self.length,np.nan)
         self.missing = np.concatenate([i_missing, i_to_add])
 
     def add_missing(self, ratio):
         nb = round(len(self.phase_labels)*ratio)
         nb_to_add = nb - len(self.missing)
+        if nb_to_add < 0:
+            nb_to_add = 0
         i_to_add = np.random.choice(np.setdiff1d(np.arange(len(self.phase_labels)), self.missing), nb_to_add, replace=False)
-        self.load_features[i_to_add] = np.zeros(self.length)
+        self.load_features[i_to_add] = np.full(self.length,np.nan)
         self.missing = np.concatenate([self.missing, i_to_add])
+
+    def accuracy(self):
+        if len(self.partial_phase_labels) != len(self.phase_labels):
+            raise IndexError("Phase labels not of same length")
+        c = 0.0
+        for i, phase in enumerate(self.partial_phase_labels):
+            if i not in self.missing:
+                if phase == self.phase_labels[i]:
+                    c = c + 1.0
+        try:
+            acc = c / (len(self.phase_labels)-len(self.missing))
+        except ZeroDivisionError:
+            acc = np.nan
+        return acc

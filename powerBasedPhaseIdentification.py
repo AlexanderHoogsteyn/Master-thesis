@@ -90,7 +90,7 @@ class PartialPhaseIdentification(Feeder):
             new_row_transfo_c = []
             for t in range(1, len(var[0])):
                 pl = np.array(self.partial_phase_labels)
-                if abs(var[j,t]) > treshold*(sum(var_transfo[:, t])) / len(pl[pl == 0]):
+                if abs(var[j,t]) > abs(treshold*(sum(var_transfo[:, t])) / len(pl[pl == 0])):
                     new_row += [var[j, t]]
                     new_row_transfo_a += [var_transfo[0, t]]
                     new_row_transfo_b += [var_transfo[1, t]]
@@ -174,18 +174,8 @@ class PartialPhaseIdentification(Feeder):
         for i in range(0, len(self.partial_phase_labels)):
             if self.partial_phase_labels[i] == self.phase_labels[i]:
                 c = c + 1.0
-        return c / len(self.partial_phase_labels[self.partial_phase_labels != 0])
-
-
-    def accuracy(self):
-        if len(self.partial_phase_labels) != len(self.phase_labels):
-            raise IndexError("Phase labels not of same length")
-        c = 0.0
-        for i in range(0, len(self.partial_phase_labels)):
-            if self.partial_phase_labels[i] == self.phase_labels[i]:
-                c = c + 1.0
         try:
-            acc = c / len(self.partial_phase_labels[self.partial_phase_labels != 0])
+            acc = c / (self.nb_customers)
         except ZeroDivisionError:
             acc = np.nan
         return acc
@@ -220,3 +210,16 @@ class PartialMissingPhaseIdentification(PartialPhaseIdentification):
     def add_missing(self,ratio):
         nb = round(len(self.phase_labels)*ratio)
         raise NotImplementedError
+
+    def accuracy(self):
+        if len(self.partial_phase_labels) != len(self.phase_labels):
+            raise IndexError("Phase labels not of same length")
+        c = 0.0
+        for i in range(0, len(self.partial_phase_labels)):
+            if self.partial_phase_labels[i] == self.phase_labels[i]:
+                c = c + 1.0
+        try:
+            acc = c / (len(self.phase_labels)-len(self.missing))
+        except ZeroDivisionError:
+            acc = np.nan
+        return acc

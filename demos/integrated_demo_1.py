@@ -28,6 +28,6 @@ if include_C:
 for feeder_id in included_feeders:
     feeder = IntegratedPhaseIdentification(measurement_error=load_noise, feederID=feeder_id,
                     include_three_phase=include_three_phase, length=length)
-    feeder.voltage_assisted_load_correlation(sal_treshold_load=0.4, sal_treshold_volt=0.0, corr_treshold=0, volt_assist=volt_assist)
+    feeder.voltage_assisted_load_correlation(sal_treshold_load=1, sal_treshold_volt=0.0, corr_treshold=0, volt_assist= volt_assist, length=length)
     feeder.plot_voltages(length=length)
     feeder.plot_load_profiles(length=length)
