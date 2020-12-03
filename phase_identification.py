@@ -1,16 +1,4 @@
-import json
-import random
-import numpy as np
-import pandas as pd
-import os
-import copy
-import glob
-from sklearn.cluster import AgglomerativeClustering, KMeans
-from sklearn_extra.cluster import KMedoids
-from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import silhouette_samples, silhouette_score
-from sklearn.mixture import GaussianMixture
-import matplotlib.pyplot as plt
+
 
 """
 Toolset for identifying phase connectivity of customers in a distribution network.
@@ -45,15 +33,15 @@ class Feeder(object):
         configuration_file = self._path_topology + feederID + '_configuration.json'
         with open(configuration_file) as current_file:
             config_data = json.load(current_file)
-        self._id = config_data['gridConfig']['id']
-        self._transfo_id = config_data['gridConfig']['trafoId']
+        self.id = config_data['gridConfig']['id']
+        self.transfo_id = config_data['gridConfig']['trafoId']
         devices_path = config_data['gridConfig']['devices_file']
         # branches_path = config_data['gridConfig']['branches_file']
-        self._nb_customers = config_data['gridConfig']['totalNrOfEANS']
+        self.nb_customers = config_data['gridConfig']['totalNrOfEANS']
 
-        self._phase_labels = []
-        self._device_IDs = []
-        self._3phase_IDs = []
+        self.phase_labels = []
+        self.device_IDs = []
+        self.multiphase_IDs = []
         voltage_features = []
         load_features = []
 
@@ -83,46 +71,33 @@ class Feeder(object):
                     else:
                         raise NameError("Unkown phase connection")
                 if len(device_phases) == 3:
-                    self._3phase_IDs += [deviceID]
-                    self._device_IDs += [deviceID, deviceID, deviceID]
+                    self.multiphase_IDs += [deviceID]
+                    self.device_IDs += [deviceID, deviceID, deviceID]
                 else:
-                    self._device_IDs += [deviceID]
-
-
-                self._phase_labels += device_phases
+                    self.device_IDs += [deviceID]
+                self.phase_labels += device_phases
         noise = np.random.normal(0, measurement_error, [np.size(voltage_features, 0), np.size(voltage_features, 1)])
         self.voltage_features = np.array(voltage_features) + noise
         self.load_features = np.array(load_features)
-        self._phase_labels = np.array(self._phase_labels)
+        self.phase_labels = np.array(self.phase_labels)
 
-    def set_voltage_features(self, data):
-        self.voltage_features = data
-
-    def get_load_features(self):
-        """
-        Method to obtain the features as a numpy 2D array, each column contains a feature.
-        """
-        return self._load_features
-
-    def set_load_features(self, data):
-        self.load_features = data
 
     def get_IDs(self):
         """
         Method to obtain a numpy array of the feeders used, the indeces will correspond to the indeces on the rows
         obtained using get_features(), get_feature() or Clusters.get_clusters()
         """
-        return self._device_IDs
+        return self.device_IDs
 
     def get_phase_labels(self):
         """
         Method to obtain a list of the features used, the order of which will correspond to the order of the columns in
         get_features()
         """
-        return self._phase_labels
+        return self.phase_labels
 
     def get_nb_customers(self):
-        return self._nb_customers
+        return self.nb_customers
 
     def hierarchal_clustering(self, n_clusters=3, normalized=True, criterion='avg_silhouette'):
         """
@@ -235,9 +210,9 @@ class Feeder(object):
         return Cluster(best_cluster_labels, 'Gaussian mixture model', normalized, n_repeats, 'avg_silhouette', score)
 
     def get_reference_3phase_customer(self):
-        id_ = np.array(self._device_IDs)
+        id_ = np.array(self.device_IDs)
         try:
-            id_3 = self._3phase_IDs[0]
+            id_3 = self.multiphase_IDs[0]
         except IndexError:
             raise ValueError("No 3 phase reference found")
         else:
@@ -314,22 +289,22 @@ class Feeder(object):
             new_data[new_data < 0] = -1
         if inplace:
             if data == "voltage":
-                self.set_voltage_features(np.array(new_data))
+                self.voltage_features = np.array(new_data)
             if data == "load":
-                self.set_load_features(np.array(new_data))
+                self.load_features = np.array(new_data)
         else:
             new_self = copy.deepcopy(self)
             if data == "voltage":
-                new_self.set_voltage_features(np.array(new_data))
+                new_self.voltage_features = np.array(new_data)
             if data == "load":
-                new_self.set_load_features(np.array(new_data))
+                new_self.load_features = np.array(new_data)
             return new_self
 
     def truncate_voltages(self):
         vf = self.voltage_features
         vf = vf*230     #chanve from pu to V
         vf = np.trunc(vf)
-        self.set_voltage_features(vf)
+        self.voltage_features = vf
 
 
     def add_noise(self, error=0, data="voltage",inplace=True):
@@ -337,159 +312,25 @@ class Feeder(object):
             if data == "voltage":
                 voltage_features = self.voltage_features
                 noise = np.random.normal(0, error, [np.size(voltage_features, 0), np.size(voltage_features, 1)])
-                self.set_voltage_features(voltage_features + noise)
+                self.voltage_features = voltage_features + noise
             if data == "load":
-                load_features = self.load_features
-                error = error * np.mean(load_features)
-                noise = np.random.normal(0, error, [np.size(load_features, 0), np.size(load_features, 1)])
-                self.set_load_features(load_features + noise)
+                error = error * np.mean(self.load_features)
+                noise = np.random.normal(0, error, [np.size(self.load_features, 0), np.size(load_features, 1)])
+                self.load_features = self.load_features + noise
         else:
             if data == "voltage":
                 voltage_features = self.voltage_features
                 noise = np.random.normal(0, error, [np.size(voltage_features, 0), np.size(voltage_features, 1)])
                 new_self = copy.deepcopy(self)
-                new_self.set_voltage_features(voltage_features + noise)
+                new_self.voltage_features = voltage_features + noise
             if data == "load":
-                load_features = self.load_features
-                error = error * np.mean(load_features)
-                noise = np.random.normal(0, error, [np.size(load_features, 0), np.size(load_features, 1)])
+                error = error * np.mean(self.load_features)
+                noise = np.random.normal(0, error, [np.size(self.load_features, 0), np.size(load_features, 1)])
                 new_self = copy.deepcopy(self)
-                new_self.set_load_features(load_features + noise)
+                new_self.load_features = self.load_features + noise
             return new_self
 
 
-class PhaseIdentification(object):
-    """
-    A phaseIdentification object is formed by performing one of the phase identification methods on the feeder object
-    It contains most notably an array with the found phase labels by the method
-    """
-    def __init__(self, phase_labels, algorithm, n_repeats=1, criterion='global_silhouette', score=np.nan):
-        self._phase_labels = phase_labels
-        self._algorithm = algorithm
-        self._n_clusters = 3
-        self._n_repeats = n_repeats
-        self._criterion = criterion
-        self._score = score
-
-    def get_phase_labels(self):
-        return self._phase_labels
-
-    def set_phase_labels(self, labels):
-        self._phase_labels = labels
-
-    def accuracy(self, Feeder):
-        correct_labels = Feeder.get_phase_labels()
-        labels = self.get_phase_labels()
-        if len(labels) != len(correct_labels):
-            raise IndexError("Phase labels not of same length")
-        c = 0.0
-        for i in range(0, len(labels)):
-            if labels[i] == correct_labels[i]:
-                c = c + 1.0
-        return c / len(labels)
-
-    def find_wrong_IDs(self, Feeder):
-        correct_labels = Feeder.get_phase_labels()
-        labels = self.get_phase_labels()
-        id_s = Feeder.get_IDs()
-        wrong_ids = []
-        if len(labels) != len(correct_labels):
-            raise IndexError("Phase labels not of same length")
-        for i in range(0, len(labels)):
-            if labels[i] != correct_labels[i]:
-                wrong_ids += [id_s[i]]
-        return np.array(wrong_ids)
-
-    def match_labels(self, Feeder):
-        best_labels = self.get_phase_labels()
-        best_acc = 0.0
-        for i in range(0, 7):
-            acc = self.accuracy(Feeder)
-            labels = self.get_phase_labels()
-            if acc > best_acc:
-                best_acc = acc
-                best_labels = labels
-            if i == 3:
-                for j in range(0, len(labels)):
-                    if labels[j] == 1:
-                        labels[j] = 2
-                    elif labels[j] == 2:
-                        labels[j] = 1
-                self.set_phase_labels(np.array(labels))
-            else:
-                self.set_phase_labels(list(map(lambda x: x % 3 + 1, labels)))
-        self.set_phase_labels(np.array(best_labels))
-
-    def plot_voltages(Feeder, PhaseIdentification, x_axis=None, y_axis=None):
-        """
-        Makes a 2D plot of the resulting clusters. You need to specify the Feeder object which contains all the used data
-        as well as the Cluster object which you obtained by performing one on the clustering algorithm methods
-        on the Feeder.
-        It can be chosen what is plotted on the x and y axis by specifying the name of a feature. This has to be the specific
-        string corresponding to that feature such as "Yearly consumption per customer (kWh)" (These can be found using
-        Feeder.get_feature_list() ).
-        """
-        cluster_labels = PhaseIdentification.get_phase_labels()
-        voltage_data = Feeder.voltage_features
-        plt.figure(figsize=(8, 6))
-        markers = ["s", "o", "D", ">", "<", "v", "+"]
-        x = np.arange(0, 48)
-        for i in range(0, Cluster.get_n_clusters()):
-            color = plt.cm.viridis(float(i) / (float(Cluster.get_n_clusters()) - 1.0))
-            for line in voltage_data:
-                plt.plot(x, line, color=color, alpha=0.85)
-        plt.xlabel(x_axis)
-        plt.ylabel(y_axis)
-        plt.title(Cluster.get_algorithm() + " with n_clusters = %d" % Cluster.get_n_clusters() + Cluster.get_repeats())
-        plt.show()
-
-
-class Cluster(PhaseIdentification):
-    """
-    Special case of  PhaseIdentification class when result is obtained by performing a clustering method.
-    A cluster object contains all info on the result obtained after performing a clustering algorithm. Most notably the
-    labels to identify which cluster a feeder is allocated to. Besides that, the object contains some metadata about
-    the number of clusters, which algorithm was used, the score of the result according to the specified criterion.
-    """
-
-    def __init__(self, clusters, algorithm, normalized=False, n_repeats=1, criterion='global_silhouette', score=np.nan):
-        self._phase_labels = clusters + 1
-        self._algorithm = algorithm
-        self._normalized = normalized
-        self._n_clusters = np.max(clusters) + 1
-        self._n_repeats = n_repeats
-        self._criterion = criterion
-        self._score = score
-
-    def get_algorithm(self):
-        return self._algorithm
-
-    def get_normalisation(self):
-        if self._normalized == True:
-            return 'normalized'
-        else:
-            return 'not normalized'
-
-    def get_n_repeats(self):
-        return self._n_repeats
-
-    def get_repeats(self):
-        if self.get_n_repeats() == 1:
-            return ''
-        else:
-            return ' repeated %d times' % self.get_n_repeats()
-
-    def get_criterion(self):
-        return self._criterion
-
-    def is_normalised(self):
-        return self._normalized
-
-    def get_n_clusters(self):
-        return self._n_clusters
-
-    def get_score(self):
-        return self._score
 
 class PartialPhaseIdentification(Feeder):
 
@@ -512,7 +353,7 @@ class PartialPhaseIdentification(Feeder):
         """
         lf = self.load_features
         lf_var = self.get_variations_matrix()
-        i = np.array(self.get_IDs())
+        i = np.array(self.device_IDs)
 
         lf_mav = []
         for col in lf_var:
@@ -609,18 +450,14 @@ class PartialPhaseIdentification(Feeder):
         """
         sal, sal_i, var_tot, var = self.get_salient_variations(treshold=sal_treshold)
         counter = 0
-        for j in range(0,len(self.get_IDs())):
+        for j in range(0,len(self.device_IDs)):
             if len(sal[j]) > 0 and self._partial_phase_labels[j] == 0:
                 phase, corr = self.find_phase(sal[j],sal_i[j],var_tot)
                 if corr > corr_treshold:
                     self.sub_load_profile(j,phase)
                     counter += 1
                     var_tot = self.get_total_variations_matrix()
-                #else:
-                    #print(corr, " /n")
-            if len(sal[j]) == 0:
-                id = self.get_IDs()
-                #print(id[j], " ", sal[j], " ", var[j])
+
         progress = sum(np.array(self._partial_phase_labels) != 0) / len(self._partial_phase_labels)
         acc = self.accuracy()
         print(counter, " devices allocated, ", progress*100, "% done, accuracy ", acc*100, "%")
