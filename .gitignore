@@ -148,6 +148,7 @@ dmypy.json
 
 /__pycache__/
 /.idea/
+.idea
 /parsers/
 phase_identification.py
 case_studies.py
