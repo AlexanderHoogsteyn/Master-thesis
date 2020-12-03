@@ -80,13 +80,18 @@ class Feeder(object):
 
         self._voltage_features_transfo = np.zeros([3, length])
         self._voltage_features_transfo[0] = voltage_data["transfo"]["phase_A"][0:length]
-        self._voltage_features_transfo[0] = voltage_data["transfo"]["phase_B"][0:length]
-        self._voltage_features_transfo[0] = voltage_data["transfo"]["phase_C"][0:length]
+        self._voltage_features_transfo[1] = voltage_data["transfo"]["phase_B"][0:length]
+        self._voltage_features_transfo[2] = voltage_data["transfo"]["phase_C"][0:length]
+
+        self.load_features_transfo = np.zeros([3, length])
+        self.load_features_transfo[0] = load_data["transfo"]["phase_A"][0:length]
+        self.load_features_transfo[1] = load_data["transfo"]["phase_B"][0:length]
+        self.load_features_transfo[2] = load_data["transfo"]["phase_C"][0:length]
 
         self._load_features_transfo = np.zeros([3, length])
         self._load_features_transfo[0] = load_data["transfo"]["phase_A"][0:length]
-        self._load_features_transfo[0] = load_data["transfo"]["phase_B"][0:length]
-        self._load_features_transfo[0] = load_data["transfo"]["phase_C"][0:length]
+        self._load_features_transfo[1] = load_data["transfo"]["phase_B"][0:length]
+        self._load_features_transfo[2] = load_data["transfo"]["phase_C"][0:length]
 
         noise = np.random.normal(0, measurement_error, [np.size(voltage_features, 0), np.size(voltage_features, 1)])
         self.voltage_features = np.array(voltage_features) + noise
@@ -125,12 +130,15 @@ class Feeder(object):
     def change_data_representation(self, representation="delta", data="voltage", inplace=True):
         if data == "voltage":
             original_data = self.voltage_features
+            original_transfo_data = self._voltage_features_transfo
         elif data == "load":
             original_data = self.load_features
+            original_transfo_data = self._voltage_features_transfo
         else:
             return print("enter voltage or load as data")
 
         new_data = []
+        new_transfo_data = []
         if representation == "delta" or representation == "binary":
             for row in original_data:
                 new_row = [0] * len(row)
@@ -138,25 +146,40 @@ class Feeder(object):
                     new_row[i] = row[i] - row[i - 1]
                 new_data.append(new_row)
             new_data = np.array(new_data)
+
+            for row in original_transfo_data:
+                new_row = [0] * len(row)
+                for i in range(1, len(row)):
+                    new_row[i] = row[i] - row[i - 1]
+                new_transfo_data.append(new_row)
+            new_transfo_data = np.array(new_transfo_data)
+
         if representation == "binary":
             new_data[new_data > 0] = 1
             new_data[new_data < 0] = -1
+            new_transfo_data[new_transfo_data > 0] = 1
+            new_transfo_data[new_transfo_data < 0] = -1
         if inplace:
             if data == "voltage":
                 self.voltage_features = np.array(new_data)
+                self._voltage_features_transfo = np.array(new_transfo_data)
             if data == "load":
                 self.load_features = np.array(new_data)
+                self._load_features_transfo = np.array(new_transfo_data)
         else:
             new_self = copy.deepcopy(self)
             if data == "voltage":
                 new_self.voltage_features = np.array(new_data)
+                new_self._voltage_features_transfo = np.array(new_transfo_data)
+
             if data == "load":
                 new_self.load_features = np.array(new_data)
+                new_self._voltage_features_transfo = np.array(new_transfo_data)
             return new_self
 
     def truncate_voltages(self):
         vf = self.voltage_features
-        vf = vf*230     #chanve from pu to V
+        vf = vf*230     #change from pu to V
         vf = np.trunc(vf)
         self.voltage_features = vf
 

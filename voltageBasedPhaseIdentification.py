@@ -6,8 +6,8 @@ class PhaseIdentification(Feeder):
     It contains most notably an array with the found phase labels by the method
     """
 
-    def __init__(self, feederID='65019_74469', include_three_phase=False, measurement_error=0.0):
-        Feeder.__init__(self, feederID, include_three_phase, measurement_error)
+    def __init__(self, feederID='65019_74469', include_three_phase=False, measurement_error=0.0,length=24):
+        Feeder.__init__(self, feederID, include_three_phase, measurement_error,length=length)
 
         self._score = np.nan
 
@@ -157,7 +157,8 @@ class PhaseIdentification(Feeder):
             corr = 0
             label = np.nan
             for phase in range(0, 3):
-                n_corr = np.correlate(device, profiles[phase])
+                n_corr = sum((profiles[phase]-np.mean(profiles[phase])) * (device-np.mean(device)))\
+                                             /(np.std(profiles[phase])*np.std(device))
                 if n_corr > corr:
                     corr = n_corr
                     label = labels[phase]
@@ -166,6 +167,29 @@ class PhaseIdentification(Feeder):
         self._algorithm = 'voltage_correlation'
         self._n_repeats = 1
         self.partial_phase_labels = phase_labels
+
+    def voltage_correlation_transfo_ref(self):
+        labels = [1,2,3]
+        profiles = self._voltage_features_transfo
+
+
+        phase_labels = []
+        scores = []
+        for device in self.voltage_features:
+            corr = 0
+            label = np.nan
+            for phase in range(0, 3):
+                n_corr = sum((profiles[phase] - np.mean(profiles[phase])) * (device - np.mean(device))) \
+                         / (np.std(profiles[phase]) * np.std(device))
+                if n_corr > corr:
+                    corr = n_corr
+                    label = labels[phase]
+            phase_labels += [label]
+            scores += [corr]
+        self._algorithm = 'voltage_correlation'
+        self._n_repeats = 1
+        self.partial_phase_labels = phase_labels
+        self._algorithm = 'Voltage correlation with transformer ref'
 
     def accuracy(self):
         correct_labels = self.partial_phase_labels
@@ -223,10 +247,11 @@ class PhaseIdentification(Feeder):
         plt.figure(figsize=(8, 6))
         markers = ["s", "o", "D", ">", "<", "v", "+"]
         x = np.arange(0, length)
-        for i in range(0, 3):
-            color = plt.cm.viridis(float(i) / (float(self.nb_customers) - 1.0))
-            for line in voltage_data:
-                plt.plot(x, line[0:length], color=color, alpha=0.85)
+        for i in range(1, 4):
+            color = plt.cm.viridis((float(i))/3)
+            for j, line in enumerate(voltage_data):
+                if self.partial_phase_labels[j] == i:
+                    plt.plot(x, line[0:length], color=color, alpha=0.85)
         plt.xlabel(x_axis)
         plt.ylabel(y_axis)
         plt.title(self._algorithm)
