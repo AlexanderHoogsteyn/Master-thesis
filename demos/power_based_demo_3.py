@@ -12,7 +12,7 @@ I can improve this by making shure an additional 10 of missing is added in stead
 include_A = True
 include_B = True
 include_C = True
-load_noise = 0.00   #pu
+load_noise = 0.01   #pu
 include_three_phase = False
 length = 24*7
 
@@ -29,7 +29,7 @@ for feeder_id in included_feeders:
     length_range = np.arange(1, 15)
     missing_range = np.arange(0, 1.00, 0.10)
     tot_scores = np.zeros([len(missing_range), len(length_range)])
-    reps = 100
+    reps = 1
     for rep in range(0,reps):
         scores = []
         for i, value in enumerate(missing_range):

@@ -175,7 +175,7 @@ class PartialPhaseIdentification(Feeder):
             if self.partial_phase_labels[i] == self.phase_labels[i]:
                 c = c + 1.0
         try:
-            acc = c / (self.nb_customers)
+            acc = c / (len(self.phase_labels))
         except ZeroDivisionError:
             acc = np.nan
         return acc
@@ -191,7 +191,11 @@ class PartialPhaseIdentification(Feeder):
             self.load_features = self.load_features + noise
 
     def reset_partial_phase_identification(self):
-        self.partial_phase_labels = [0] * len(self.phase_labels)
+        self.partial_phase_labels = np.array([0] * len(self.phase_labels))
+
+    def reset_load_features_transfo(self):
+        self_copy = copy.deepcopy(self)
+        self.load_features_transfo = getattr(self_copy,"_load_features_transfo")
 
 
 class PartialMissingPhaseIdentification(PartialPhaseIdentification):

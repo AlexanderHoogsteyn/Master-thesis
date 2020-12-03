@@ -88,6 +88,11 @@ class Feeder(object):
         self.load_features_transfo[1] = load_data["transfo"]["phase_B"][0:length]
         self.load_features_transfo[2] = load_data["transfo"]["phase_C"][0:length]
 
+        self._load_features_transfo = np.zeros([3, length])
+        self._load_features_transfo[0] = load_data["transfo"]["phase_A"][0:length]
+        self._load_features_transfo[1] = load_data["transfo"]["phase_B"][0:length]
+        self._load_features_transfo[2] = load_data["transfo"]["phase_C"][0:length]
+
         noise = np.random.normal(0, measurement_error, [np.size(voltage_features, 0), np.size(voltage_features, 1)])
         self.voltage_features = np.array(voltage_features) + noise
         self.load_features = np.array(load_features)
