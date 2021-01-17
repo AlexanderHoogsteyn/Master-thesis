@@ -1,6 +1,6 @@
 # import PhaseIdentification as pi
-from common import *
-from integratedPhaseIdentification import *
+from src.PhaseIdentification.common import *
+from src.PhaseIdentification.integratedPhaseIdentification import *
 # from powerBasedPhaseIdentification import *
 import seaborn as sns
 import pickle
