@@ -1,7 +1,9 @@
-# import PhaseIdentification as pi
-from src.PhaseIdentification.common import *
-from src.PhaseIdentification.integratedPhaseIdentification import *
-# from powerBasedPhaseIdentification import *
+import sys
+from os.path import dirname
+sys.path.append(dirname("../src/"))
+
+from PhaseIdentification.common import *
+from PhaseIdentification.integratedPhaseIdentification import *
 import seaborn as sns
 import pickle
 import numpy as np

@@ -1,5 +1,5 @@
-from src.PhaseIdentification.powerBasedPhaseIdentification import *
-from src.VisualizePhaseIdentification.visualization import *
+from PhaseIdentification.powerBasedPhaseIdentification import *
+from VisualizePhaseIdentification.visualization import *
 
 
 class IntegratedPhaseIdentification(PartialPhaseIdentification):

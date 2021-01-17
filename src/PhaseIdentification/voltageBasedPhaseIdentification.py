@@ -1,4 +1,9 @@
 from src.PhaseIdentification.common import *
+from sklearn.cluster import AgglomerativeClustering, KMeans
+from sklearn_extra.cluster import KMedoids
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import silhouette_samples, silhouette_score
+from sklearn.mixture import GaussianMixture
 
 class PhaseIdentification(Feeder):
     """

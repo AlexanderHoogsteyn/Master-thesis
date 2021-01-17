@@ -1,4 +1,4 @@
-from src.PhaseIdentification.common import *
+from PhaseIdentification.common import *
 
 
 class PartialPhaseIdentification(Feeder):

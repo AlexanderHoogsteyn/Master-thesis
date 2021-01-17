@@ -1,4 +1,8 @@
-from src.PhaseIdentification.integratedPhaseIdentification import *
+import sys
+from os.path import dirname
+sys.path.append(dirname("../src/"))
+
+from PhaseIdentification.integratedPhaseIdentification import *
 
 """
 ##################################################
