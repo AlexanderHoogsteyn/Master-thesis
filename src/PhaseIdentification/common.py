@@ -26,8 +26,8 @@ class Feeder(object):
         """
         features = []
         dir = os.path.dirname(os.path.realpath(__file__))
-        self._path_data = os.path.join(dir, "POLA_data/")
-        self._path_topology = os.path.join(dir, "POLA/")
+        self._path_data = os.path.join(dir, "../../data/POLA_data/")
+        self._path_topology = os.path.join(dir, "../../data/POLA/")
         self.length = length
 
 

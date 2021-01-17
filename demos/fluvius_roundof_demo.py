@@ -1,4 +1,4 @@
-from voltageBasedPhaseIdentification import *
+from src.PhaseIdentification.voltageBasedPhaseIdentification import *
 
 """
 ##################################################
@@ -18,15 +18,26 @@ include_A = True
 include_B = True
 include_C = True
 voltage_noise = 0.00
-load_noise = 0.03   #pu
-include_three_phase = False
+load_noise = 0.00   #pu
+include_three_phase = True
 length = 24*7
 n_repeats = 1
 
+included_feeders = []
+if include_A:
+    included_feeders.append("86315_785383")
+if include_B:
+    included_feeders.append("65028_84566")
+if include_C:
+    included_feeders.append("1830188_2181475")
+for feeder_id in included_feeders:
+    feeder = PhaseIdentification(measurement_error=voltage_noise, feederID=feeder_id,
+                                              include_three_phase=include_three_phase,length=length)
 
-feeder.truncate_voltages()
 
-feeder.k_means_clustering(3, n_repeats=n_repeats)
-print("Accuracy using ", representation, " data: ", feeder.accuracy())
-feeder.plot_voltages(length=length)
-feeder.plot_load_profiles(length=length)
+    feeder.truncate_voltages()
+
+    feeder.voltage_correlation()
+    print("Accuracy using voltage correlation method", " data: ", feeder.accuracy())
+    feeder.plot_voltages(length=length)
+    feeder.plot_load_profiles(length=length)

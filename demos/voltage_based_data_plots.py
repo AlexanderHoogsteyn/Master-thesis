@@ -1,6 +1,5 @@
-from voltageBasedPhaseIdentification import *
-from integratedPhaseIdentification import *
-import seaborn as sns
+from src.PhaseIdentification.voltageBasedPhaseIdentification import *
+from src.PhaseIdentification.integratedPhaseIdentification import *
 
 feeder = PhaseIdentification(measurement_error=0, feederID="1830188_2181475", include_three_phase=False, length=24*7)
 

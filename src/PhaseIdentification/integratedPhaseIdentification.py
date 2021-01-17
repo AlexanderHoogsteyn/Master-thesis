@@ -1,4 +1,5 @@
-from powerBasedPhaseIdentification import *
+from src.PhaseIdentification.powerBasedPhaseIdentification import *
+from src.VisualizePhaseIdentification.visualization import *
 
 
 class IntegratedPhaseIdentification(PartialPhaseIdentification):
@@ -16,6 +17,8 @@ class IntegratedPhaseIdentification(PartialPhaseIdentification):
 
         # Sorting done according to highest variance in load
         self.sort_devices_by_variation()
+        C = CorrelationCoeficients(self)
+        C.visualize_correlation_all()
 
         while counter > 0 and completeness != 1:
 
@@ -47,10 +50,13 @@ class IntegratedPhaseIdentification(PartialPhaseIdentification):
                     # else:
                     #   print(corr, "is below correlation threshold")
 
+
+
             completeness = sum(np.array(self.partial_phase_labels) != 0) / len(self.partial_phase_labels)
             acc = self.accuracy()
             print(counter, " devices allocated, ", completeness * 100, "% done, accuracy ", acc * 100, "%")
-
+            C = CorrelationCoeficients(self)
+            C.visualize_correlation_all()
         if completeness != 1:
             # Complete remaining
             # Load salient components
@@ -83,6 +89,8 @@ class IntegratedPhaseIdentification(PartialPhaseIdentification):
             completeness = sum(np.array(self.partial_phase_labels) != 0) / len(self.partial_phase_labels)
             acc = self.accuracy()
             print(counter, " devices allocated, ", completeness * 100, "% done, accuracy ", acc * 100, "%")
+            C = CorrelationCoeficients(self)
+            C.visualize_correlation_all()
 
     def find_phase(self, sal_volt, sal_transfo_volt, sal_load, sal_transfo_load, volt_assist=0):
         """

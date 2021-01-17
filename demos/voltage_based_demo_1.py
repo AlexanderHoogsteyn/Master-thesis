@@ -1,4 +1,4 @@
-from voltageBasedPhaseIdentification import *
+from src.PhaseIdentification.voltageBasedPhaseIdentification import *
 
 """
 ##################################################

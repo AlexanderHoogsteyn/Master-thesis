@@ -1,5 +1,4 @@
-from integratedPhaseIdentification import *
-import seaborn as sns
+from src.PhaseIdentification.integratedPhaseIdentification import *
 import pickle
 
 """
@@ -62,5 +61,5 @@ for g,feeder_id in enumerate(included_feeders):
 results = {"ratio_range":ratio_range,"length_range":length_range,"missing_range":missing_range,
            "reps":reps, "included_feeders":["Case A"],"data":data}
 
-with open('results_'+str(reps)+'reps.pickle', 'wb') as handle:
+with open('results_'+str(reps)+'reps_local.pickle', 'wb') as handle:
     pickle.dump(results, handle, protocol=pickle.HIGHEST_PROTOCOL)

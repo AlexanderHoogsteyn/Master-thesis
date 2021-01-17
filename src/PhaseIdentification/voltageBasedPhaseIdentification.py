@@ -1,4 +1,4 @@
-from common import *
+from src.PhaseIdentification.common import *
 
 class PhaseIdentification(Feeder):
     """

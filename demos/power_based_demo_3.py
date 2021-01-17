@@ -1,4 +1,4 @@
-from powerBasedPhaseIdentification import *
+from src.PhaseIdentification.powerBasedPhaseIdentification import *
 import seaborn as sns
 
 """
