@@ -1,5 +1,10 @@
-from src.PhaseIdentification.integratedPhaseIdentification import *
+import sys
+from os.path import dirname
+sys.path.append(dirname("../src/"))
+
+from PhaseIdentification.integratedPhaseIdentification import *
 import pickle
+import numpy as np
 
 """
 ##################################################
@@ -10,25 +15,16 @@ but results get stored in pickle file
 I can improve this by making shure an additional 10 of missing is added in stead of all new devices
 ##################################################
 """
-include_A = True
-include_B = False
-include_C = False
 load_noise = 0.01   #pu
 include_three_phase = False
 length = 24*15
 
-included_feeders = []
-if include_A:
-    included_feeders.append("86315_785383")
-if include_B:
-    included_feeders.append("65028_84566")
-if include_C:
-    included_feeders.append("1830188_2181475")
+included_feeders = ["86315_785383", "65028_84566", "1076069_1274129", "1132967_1400879", "65025_80035", "1076069_1274125"]
 
 ratio_range = np.arange(0,1.2,0.20)
 length_range = np.arange(1, 15)
 missing_range = np.arange(0, 1.00, 0.10)
-reps = 100
+reps = 1
 
 data = {}
 
@@ -48,7 +44,7 @@ for g,feeder_id in enumerate(included_feeders):
                     feeder.add_missing(value)
                     feeder.voltage_assisted_load_correlation(sal_treshold_load=0.4, sal_treshold_volt=0.0,
                                                              corr_treshold=0.1, volt_assist=ratio,
-                                                             length=24 * days)
+                                                             length=24 * days, printout_level=1)
                     col += [feeder.accuracy()]
                 scores.append(col)
             tot_scores += np.array(scores)

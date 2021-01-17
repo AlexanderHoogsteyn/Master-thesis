@@ -1,5 +1,6 @@
 from PhaseIdentification.powerBasedPhaseIdentification import *
 from VisualizePhaseIdentification.visualization import *
+import numpy as np
 
 
 class IntegratedPhaseIdentification(PartialPhaseIdentification):
@@ -8,7 +9,7 @@ class IntegratedPhaseIdentification(PartialPhaseIdentification):
         PartialPhaseIdentification.__init__(self, feederID, include_three_phase, measurement_error, length=length)
 
     def voltage_assisted_load_correlation(self, sal_treshold_load=1, sal_treshold_volt=0.4, corr_treshold=0.2,
-                                          volt_assist=0.0, length=24):
+                                          volt_assist=0.0, length=24,salient_components=1, printout_level=1):
         """
         Also uses salient voltage measurements, therefore also feeder voltage needed
         """
@@ -17,14 +18,17 @@ class IntegratedPhaseIdentification(PartialPhaseIdentification):
 
         # Sorting done according to highest variance in load
         self.sort_devices_by_variation()
-        C = CorrelationCoeficients(self)
-        C.visualize_correlation_all()
+        if printout_level >= 3:
+            C = CorrelationCoeficients(self)
+            C.visualize_correlation_all()
 
         while counter > 0 and completeness != 1:
 
             # Load salient components
-            var_load = np.diff(self.load_features[:, 0:length], 1)
-            var_transfo_load = np.diff(self.load_features_transfo[:, 0:length], 1)
+            var_load = tuple(np.diff(self.load_features[:, 0:length], k) for k in range(0, salient_components))
+            var_transfo_load = tuple(np.diff(self.load_features_transfo[:, 0:length], k) for k in range(0, salient_components))
+            var_load = np.concatenate(var_load, axis=1)
+            var_transfo_load = np.concatenate(var_transfo_load, axis=1)
             sal_load, sal_transfo_load = self.get_salient_variations(sal_treshold_load, var_load, var_transfo_load)
             # print("# Salient components load between ", min(nb_sal), " and ", max(nb_sal))
 
@@ -50,13 +54,16 @@ class IntegratedPhaseIdentification(PartialPhaseIdentification):
                     # else:
                     #   print(corr, "is below correlation threshold")
 
-
-
-            completeness = sum(np.array(self.partial_phase_labels) != 0) / len(self.partial_phase_labels)
+            try:
+                completeness = sum(np.array(self.partial_phase_labels) != 0) / len(self.partial_phase_labels)
+            except ZeroDivisionError:
+                completeness = 1
             acc = self.accuracy()
-            print(counter, " devices allocated, ", completeness * 100, "% done, accuracy ", acc * 100, "%")
-            C = CorrelationCoeficients(self)
-            C.visualize_correlation_all()
+            if printout_level >= 1:
+                print(counter, " devices allocated, ", completeness * 100, "% done, accuracy ", acc * 100, "%")
+            if printout_level  >= 4:
+                C = CorrelationCoeficients(self)
+                C.visualize_correlation_all()
         if completeness != 1:
             # Complete remaining
             # Load salient components
@@ -88,9 +95,11 @@ class IntegratedPhaseIdentification(PartialPhaseIdentification):
 
             completeness = sum(np.array(self.partial_phase_labels) != 0) / len(self.partial_phase_labels)
             acc = self.accuracy()
-            print(counter, " devices allocated, ", completeness * 100, "% done, accuracy ", acc * 100, "%")
-            C = CorrelationCoeficients(self)
-            C.visualize_correlation_all()
+            if printout_level >= 1:
+                print(counter, " devices allocated, ", completeness * 100, "% done, accuracy ", acc * 100, "%")
+            if printout_level >= 4:
+                C = CorrelationCoeficients(self)
+                C.visualize_correlation_all()
 
     def find_phase(self, sal_volt, sal_transfo_volt, sal_load, sal_transfo_load, volt_assist=0):
         """

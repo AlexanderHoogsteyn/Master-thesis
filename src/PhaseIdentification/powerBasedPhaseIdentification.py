@@ -1,14 +1,24 @@
 from PhaseIdentification.common import *
+import numpy as np
 
 
 class PartialPhaseIdentification(Feeder):
     """
-    Subclass of Feeder which contains
+    Subclass of Feeder which contains functionality to do a partial phase identification (i.e. only identify a subset
+    of customers) during one iteration. This is used by the load based methods which solve the phase Identification partly
+    and then subtract the load profile from the correct phase.
     """
 
     def __init__(self, feederID='65019_74469', include_three_phase=False, measurement_error=0.0,length =24):
+        """
+        Initialize the PartialPhaseIdentification object by reading out the data from JSON files in the specified directory.
+        feederID = full identification number of the feeder
+        include_three_phase = put on True if you want to include 3 phase customers in your analysis, 3 phase customers
+                              will be regarded as 3 single phase customers
+        measurement_error = std of the amount of noise added to the voltage (p.u.)
+        length = number of data samples used, the first samples are used
+        """
         Feeder.__init__(self, feederID, include_three_phase, measurement_error=0, length=length)
-
         pl = self.phase_labels
         self.add_noise(measurement_error, data="load")
         self.add_noise(measurement_error, data="voltage")
@@ -135,11 +145,11 @@ class PartialPhaseIdentification(Feeder):
                 #print(corr, " ", best_corr, " ", sal[j])
         return best_phase, best_corr
 
-    def find_easy_device(self, sal_treshold=0.01, corr_treshold=0.0):
+    def assign_devices(self, sal_treshold=0.01, corr_treshold=0.0,sal_components=1):
         """
         """
-        var = self.get_load_variations_matrix()
-        var_transfo = self.get_transfo_load_variations_matrix()
+        var = np.diff(self.load_features(),1)
+        var_transfo = np.diff(self.load_features_transfo(),1)
         sal, sal_transfo = self.get_salient_variations(sal_treshold, var, var_transfo)
         counter = 0
         for j in range(0,len(self.device_IDs)):
@@ -157,7 +167,11 @@ class PartialPhaseIdentification(Feeder):
         print(counter, " devices allocated, ", progress*100, "% done, accuracy ", acc*100, "%")
         return progress
 
-    def load_correlation(self,sal_treshold=0.1, corr_treshold=0.2):
+    def load_correlation(self,sal_treshold=0.1, corr_treshold=0.2,sal_components=1):
+        """
+        Implements load correlation algorithm as described by Li et. al.
+        Continues to assign devices as long as progress is being made
+        """
         progress = 0.0
         last_progress = 1.0
 
@@ -165,7 +179,7 @@ class PartialPhaseIdentification(Feeder):
 
         while progress < 1.0 and last_progress != progress:
             last_progress = progress
-            progress = self.find_easy_device(sal_treshold, corr_treshold)
+            progress = self.assign_devices(sal_treshold, corr_treshold,sal_components)
 
     def accuracy(self):
         if len(self.partial_phase_labels) != len(self.phase_labels):

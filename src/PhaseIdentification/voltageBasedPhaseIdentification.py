@@ -7,18 +7,25 @@ from sklearn.mixture import GaussianMixture
 
 class PhaseIdentification(Feeder):
     """
-    A phaseIdentification object is formed by performing one of the phase identification methods on the feeder object
+    A PhaseIdentification object is formed by performing one of the phase identification methods on the feeder object
     It contains most notably an array with the found phase labels by the method
     """
 
     def __init__(self, feederID='65019_74469', include_three_phase=False, measurement_error=0.0,length=24):
+        """
+        Initialize the PhaseIdentification object by reading out the data from JSON files in the specified directory.
+        feederID = full identification number of the feeder
+        include_three_phase = put on True if you want to include 3 phase customers in your analysis, 3 phase customers
+                              will be regarded as 3 single phase customers
+        measurement_error = std of the amount of noise added to the voltage (p.u.)
+        length = number of data samples used, the first samples are used
+        """
         Feeder.__init__(self, feederID, include_three_phase, measurement_error,length=length)
-
         self._score = np.nan
 
     def hierarchal_clustering(self, n_clusters=3, normalized=True, criterion='avg_silhouette'):
         """
-        Method that returns a clustering object obtained by performing hierarchal clustering of the specified featureset
+        Method that assigns phase labels to PhaseIdebtification object obtained by performing hierarchal clustering of the specified featureset
         By default the features will be normalized first. By scaling the features to have a mean of 0 and unit variance.
         (More info: https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.StandardScaler.html)
         """
@@ -39,7 +46,7 @@ class PhaseIdentification(Feeder):
 
     def k_means_clustering(self, n_clusters=3, normalized=True, n_repeats=1, criterion='avg_silhouette'):
         """
-        Method that returns a clustering object obtained by performing K-means++ on the specified feeder.
+        Method that assigns phase labels to PhaseIdentification object obtained by performing K-means++ on the specified feeder.
         A number of repetitions can be specified, the best result according to the specified criterion will be returned
         By default the features will be normalized first. By scaling the features to have a mean of 0 and unit variance.
         (More info: https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.StandardScaler.html)
@@ -76,7 +83,7 @@ class PhaseIdentification(Feeder):
 
     def k_medoids_clustering(self, n_clusters=3, normalized=True, n_repeats=1, criterion='global_silhouette'):
         """
-        Method that returns a clustering object obtained by performing K-medoids++ on the specified feeder.
+        Method that assigns phase labels to PhaseIdentification object obtained by performing K-medoids++ on the specified feeder.
         A number of repetitions can be specified, the best result according to the specified criterion will be returned
         By default the features will be normalized first. By scaling the features to have a mean of 0 and unit variance.
         (More info: https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.StandardScaler.html)
@@ -112,7 +119,7 @@ class PhaseIdentification(Feeder):
 
     def gaussian_mixture_model(self, n_clusters=3, normalized=True, n_repeats=1):
         """
-        Method that returns a clustering object obtained by performing K-means++ on the specified feeder.
+        Method that assigns phase labels to PhaseIdentification object obtained by performing K-means++ on the specified feeder.
         A number of repetitions can be specified, the best result according to the average silhouette score will be
         returned
         By default the features will be normalized first. By scaling the features to have a mean of 0 and unit variance.
@@ -155,6 +162,10 @@ class PhaseIdentification(Feeder):
         return labels, profiles
 
     def voltage_correlation(self):
+        """
+        Voltage correlation method to perform phase identification, correlates voltage of each customer to voltage profile
+        of 3 phase reference customer and assigns the phase according to which phase it is highest correlated to.
+        """
         labels, profiles = self.get_reference_3phase_customer()
         phase_labels = []
         scores = []
@@ -174,9 +185,11 @@ class PhaseIdentification(Feeder):
         self.partial_phase_labels = phase_labels
 
     def voltage_correlation_transfo_ref(self):
+        """
+        Voltage correlation method that perform phase identification using collected voltage data of the reference transformer
+        """
         labels = [1,2,3]
         profiles = self._voltage_features_transfo
-
 
         phase_labels = []
         scores = []
@@ -241,12 +254,7 @@ class PhaseIdentification(Feeder):
 
     def plot_voltages(self, length=48, x_axis=None, y_axis=None):
         """
-        Makes a 2D plot of the resulting clusters. You need to specify the Feeder object which contains all the used data
-        as well as the Cluster object which you obtained by performing one on the clustering algorithm methods
-        on the Feeder.
-        It can be chosen what is plotted on the x and y axis by specifying the name of a feature. This has to be the specific
-        string corresponding to that feature such as "Yearly consumption per customer (kWh)" (These can be found using
-        Feeder.get_feature_list() ).
+
         """
         voltage_data = self.voltage_features
         plt.figure(figsize=(8, 6))
@@ -263,6 +271,9 @@ class PhaseIdentification(Feeder):
         plt.show()
 
     def add_noise(self, error=0, data="voltage",inplace=True):
+        """"
+        Method to add noise to existing Feeder object
+        """
         if inplace:
             if data == "voltage":
                 voltage_features = self.voltage_features
