@@ -1,6 +1,8 @@
 # import PhaseIdentification as pi
-from src.PhaseIdentification.integratedPhaseIdentification import *
+from common import *
+from integratedPhaseIdentification import *
 # from powerBasedPhaseIdentification import *
+import seaborn as sns
 import pickle
 import numpy as np
 from multiprocessing import Pool
@@ -19,17 +21,18 @@ I can improve this by making shure an additional 10 of missing is added in stead
 load_noise = 0.01  # pu
 include_three_phase = False
 length = 24 * 15
-cores = 4
+cores = 20
 
 
 def multiprocess(ratio, feeder_i):
-    included_feeders = ["86315_785383", "65028_84566", "1830188_2181475"]
+    #included_feeders = ["86315_785383", "65028_84566", "1830188_2181475"]
+    included_feeders = ["86315_785383", "65028_84566","1076069_1274129","1132967_1400879","65025_80035","1076069_1274125"]
 
     length_range = np.arange(1, 15)
     missing_range = np.arange(0, 1.00, 0.10)
     ratio_range = np.arange(0, 1.1, 0.10)
     tot_scores = np.zeros([len(missing_range), len(length_range)])
-    reps = 1
+    reps = 100
 
     for rep in range(0, reps):
         scores = []
@@ -56,7 +59,8 @@ def multiprocess(ratio, feeder_i):
 
 
 if __name__ == '__main__':
-    included_feeders = ["86315_785383", "65028_84566", "1830188_2181475"]
+    #included_feeders = ["86315_785383", "65028_84566", "1830188_2181475"]
+    included_feeders = ["86315_785383", "65028_84566","1076069_1274129","1132967_1400879","65025_80035","1076069_1274125"]
     ratio_range = np.arange(0, 1.1, 0.1)
     data = {}
     configs = product(range(len(ratio_range)), range(len(included_feeders)))
@@ -72,7 +76,7 @@ if __name__ == '__main__':
 
 
     results = {"ratio_range": ratio_range, "length_range": length_range, "missing_range": missing_range,
-               "reps": reps, "included_feeders": ["Case A","Case B", "Case C"], "data": dict(zip(product(range(len(ratio_range)), range(len(included_feeders))), scores))}
+               "reps": reps, "included_feeders": ["Case A","Case B", "Case C","Case D","Case E", "Case F"], "data": dict(zip(product(range(len(ratio_range)), range(len(included_feeders))), scores))}
 
     with open('results_' + str(reps) + 'reps.pickle', 'wb') as handle:
         pickle.dump(results, handle, protocol=pickle.HIGHEST_PROTOCOL)
