@@ -44,7 +44,7 @@ for g,feeder_id in enumerate(included_feeders):
                     feeder.add_missing(value)
                     feeder.voltage_assisted_load_correlation(sal_treshold_load=0.4, sal_treshold_volt=0.0,
                                                              corr_treshold=0.1, volt_assist=ratio,
-                                                             length=24 * days, printout_level=1)
+                                                             length=24 * days, printout_level=0)
                     col += [feeder.accuracy()]
                 scores.append(col)
             tot_scores += np.array(scores)

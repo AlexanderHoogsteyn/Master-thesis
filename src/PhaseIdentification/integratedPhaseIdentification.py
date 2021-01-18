@@ -48,9 +48,7 @@ class IntegratedPhaseIdentification(PartialPhaseIdentification):
                     if corr > corr_treshold:
                         # Subtract assigned load from transfo measurement & update variance "var_transfo_load"
                         self.sub_load_profile(j, phase)
-                        var_transfo_load = self.get_transfo_load_variations_matrix()
                         counter += 1
-
                     # else:
                     #   print(corr, "is below correlation threshold")
 
@@ -87,9 +85,7 @@ class IntegratedPhaseIdentification(PartialPhaseIdentification):
                                                   volt_assist)
                     # Subtract assigned load from transfo measurement & update variance "var_transfo_load"
                     self.sub_load_profile(j, phase)
-                    var_transfo_load = self.get_transfo_load_variations_matrix()
                     counter += 1
-
                     # else:
                     #   print(corr, "is below correlation threshold")
 

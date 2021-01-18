@@ -31,14 +31,10 @@ class PartialPhaseIdentification(Feeder):
         """
         lf = self.load_features
         vf = self.voltage_features
-        lf_var = self.get_load_variations_matrix()
+        lf_var = np.diff(self.load_features, 1)
         i = np.array(self.device_IDs)
 
-        lf_mav = []
-        for col in lf_var:
-            lf_mav.append(sum(abs(col))/len(col))
-        lf_mav = np.array(lf_mav)
-        sort_order = lf_mav.argsort()
+        sort_order = np.mean(abs(lf_var),axis=1).argsort()
         self.device_IDs = i[sort_order[::-1]]
         self.load_features = lf[sort_order[::-1]]
         self.voltage_features = vf[sort_order[::-1]]
@@ -51,56 +47,22 @@ class PartialPhaseIdentification(Feeder):
         self.load_features_transfo[phase - 1] -= self.load_features[j]
         self.partial_phase_labels[j] = phase
 
-    def get_load_variations_matrix(self):
-        var = []
-        for row in self.load_features:
-            new_row = [0] * len(row)
-            for i in range(1, len(row)):
-                new_row[i] = row[i] - row[i - 1]
-            var.append(new_row)
-        return np.array(var)
-
-    def get_voltage_variations_matrix(self):
-        var = []
-        for row in self.voltage_features:
-            new_row = [0] * len(row)
-            for i in range(1, len(row)):
-                new_row[i] = row[i] - row[i - 1]
-            var.append(new_row)
-        return np.array(var)
-
-    def get_transfo_load_variations_matrix(self):
-        var_tot = []
-        for row in self.load_features_transfo:
-            new_row = [0] * len(row)
-            for i in range(1, len(row)):
-                new_row[i] = row[i] - row[i - 1]
-            var_tot.append(new_row)
-        return np.array(var_tot)
-
-    def get_transfo_voltage_variations_matrix(self):
-        var_tot = []
-        for row in self._voltage_features_transfo:
-            new_row = [0] * len(row)
-            for i in range(1, len(row)):
-                new_row[i] = row[i] - row[i - 1]
-            var_tot.append(new_row)
-        return np.array(var_tot)
-
     def get_salient_variations(self, treshold, var, var_transfo):
         """
         Sets the salient variations taking into account the remaining devices and threshold
         """
         sal = []
         sal_transfo = []
+        total_var = sum(var_transfo)
+        pl = self.partial_phase_labels
+        l = len(pl[pl == 0]) / treshold
         for j in range(0,len(self.phase_labels)):
             new_row = []
             new_row_transfo_a = []
             new_row_transfo_b = []
             new_row_transfo_c = []
             for t in range(1, len(var[0])):
-                pl = np.array(self.partial_phase_labels)
-                if abs(var[j,t]) > abs(treshold*(sum(var_transfo[:, t])) / len(pl[pl == 0])):
+                if abs(var[j,t])*l > total_var[t] - var[j,t]:
                     new_row += [var[j, t]]
                     new_row_transfo_a += [var_transfo[0, t]]
                     new_row_transfo_b += [var_transfo[1, t]]
@@ -158,7 +120,6 @@ class PartialPhaseIdentification(Feeder):
                 if corr > corr_treshold:
                     self.sub_load_profile(j, phase)
                     counter += 1
-                    var_transfo = self.get_transfo_load_variations_matrix()
                 #else:
                     #print(corr, "is below correlation threshold")
 
