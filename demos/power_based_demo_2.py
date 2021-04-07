@@ -1,3 +1,7 @@
+import sys
+from os.path import dirname
+sys.path.append(dirname("../src/"))
+
 from src.PhaseIdentification.powerBasedPhaseIdentification import *
 
 """
@@ -10,7 +14,6 @@ Acctually I do not need voltages so..?
 include_A = True
 include_B = True
 include_C = True
-load_noise = 0.0   #pu
 include_three_phase = False
 length = 24*7
 
@@ -24,7 +27,7 @@ if include_C:
     included_feeders.append("1830188_2181475")
 
 for feeder_id in included_feeders:
-    load_feeder = PartialPhaseIdentification(measurement_error=load_noise, feederID=feeder_id,
-                                             include_three_phase=include_three_phase)
+    feeder = Feeder(feederID=feeder_id, include_three_phase=include_three_phase)
+    load_feeder = PartialPhaseIdentification(feeder=feeder, error_class=ErrorClass(1))
     print("Start load correlation algorithm for ", feeder_id)
-    load_feeder.load_correlation(sal
+    load_feeder.load_correlation(sal_treshold=0.1,corr_treshold=0.2,sal_components=3)

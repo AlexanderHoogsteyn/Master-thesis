@@ -1,3 +1,8 @@
+import sys
+from os.path import dirname
+
+sys.path.append(dirname("../src/"))
+
 from src.PhaseIdentification.voltageBasedPhaseIdentification import *
 from src.PhaseIdentification.integratedPhaseIdentification import *
 
@@ -34,7 +39,7 @@ plt.ylabel("Voltage", fontsize=14)
 plt.xlabel("Time", fontsize=14)
 plt.show()
 
-transfo_volt_data = feeder._voltage_features_transfo
+transfo_volt_data = feeder.voltage_features_transfo
 plt.figure(figsize=(6, 3))
 x = np.arange(0, 24*7)
 color = plt.cm.viridis(float(13) / (float(feeder.nb_customers) - 1.0))

@@ -1,4 +1,9 @@
-from src.PhaseIdentification.integratedPhaseIdentification import *
+import sys
+from os.path import dirname
+sys.path.append(dirname("../src/"))
+
+from PhaseIdentification.integratedPhaseIdentification import *
+from PhaseIdentification.common import *
 import seaborn as sns
 
 """
@@ -12,7 +17,7 @@ I can improve this by making shure an additional 10 of missing is added in stead
 include_A = True
 include_B = True
 include_C = True
-load_noise = 0.00   #pu
+load_noise = 0.01   #pu
 include_three_phase = False
 length = 24*15
 volt_assist = 0
@@ -32,17 +37,16 @@ for feeder_id in included_feeders:
     reps = 1
     for rep in range(0,reps):
         scores = []
-        feeder = IntegratedMissingPhaseIdentification(measurement_error=load_noise, feederID=feeder_id,
-                                                      include_three_phase=include_three_phase, length=15 * 24,
-                                                      missing_ratio=0)
+        feeder = Feeder(feederID=feeder_id, include_three_phase=include_three_phase)
+        phase_identification = IntegratedMissingPhaseIdentification(feeder, ErrorClass(load_noise), missing_ratio=0)
         for i, value in enumerate(missing_range):
             col = []
             for j, days in enumerate(length_range):
-                feeder.reset_partial_phase_identification()
-                feeder.reset_load_features_transfo()
-                feeder.add_missing(value)
-                feeder.voltage_assisted_load_correlation(sal_treshold_load=0.4, sal_treshold_volt=0.0, corr_treshold=0.1, volt_assist=volt_assist,length=24*days)
-                col += [feeder.accuracy()]
+                phase_identification.reset_partial_phase_identification()
+                phase_identification.reset_load_features_transfo()
+                phase_identification.add_missing(value)
+                phase_identification.voltage_assisted_load_correlation(sal_treshold_load=0.4, sal_treshold_volt=0.0, corr_treshold=0.1, volt_assist=volt_assist,length=24*days)
+                col += [phase_identification.accuracy()]
             scores.append(col)
         tot_scores += np.array(scores)
         print(round(rep/reps*100), "% complete")

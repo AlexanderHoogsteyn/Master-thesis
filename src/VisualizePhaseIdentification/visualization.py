@@ -1,21 +1,29 @@
 import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
-
+import json
+import os
 
 class AccuracySensitivity():
     def __init__(self,results):
-        self.ratio_range = results["ratio_range"]
-        self.length_range = results["length_range"]
-        self.missing_range = results["missing_range"]
+        self.ratio_range = results["corr_treshold_range"]
+        self.length_range = results["corr_treshold_range"]
+        self.missing_range = results["salient_comp_range"]
         self.included_feeders = results["included_feeders"]
         self.data = results["data"]
+        print("Ratio range: %s to %s" % (self.ratio_range[0], self.ratio_range[-1]))
+        print("Length range: %s to %s" % (self.length_range[0], self.length_range[-1]))
+        print("Missing range: %s to %s" % (self.missing_range[0], self.missing_range[-1]))
+        print("---------------------------------------")
+        print("Ratio     %s     %s" % (self.ratio_range[0], self.ratio_range[-1]))
+        for i, feeder in enumerate(self.included_feeders):
+            print("{}:  {:.2%}  {:.2%}".format(feeder,np.mean(self.data[(0,i)]),np.mean(self.data[(len(self.ratio_range)-1,i)])))
 
     def merge(self, other):
         """
         Method to merge the data from 2 AccuracySensititvity objects together with different ratio ranges
         """
-        self.ratio_range = np.sort(np.concatenate(self.ratio_range, other.ratio_range))
+        self.ratio_range = np.sort(np.concatenate(self.ratio_range, other.corr_treshold_range))
         self.data.update(other.data)
         return self
 
@@ -47,7 +55,7 @@ class AccuracySensitivity():
 
         i  = self.get_index_ratio(ratio)
 
-        fig, axs = plt.subplots(1, len(self.included_feeders)+1, figsize=(20, 6), dpi=90,
+        fig, axs = plt.subplots(1, 4, figsize=(20, 6), dpi=90,
                                gridspec_kw={'width_ratios':[1,1,1,0.08]})
 
         axs[0].get_shared_y_axes().join(axs[1], axs[2])
@@ -84,7 +92,7 @@ class AccuracySensitivity():
                 x = self.length_range
                 sns.heatmap(100 * self.data[(h, g)], ax=axs[h, g], xticklabels=x, yticklabels=y, cmap='RdYlGn',
                             cbar=False, center=70,
-                            annot=True)
+                            annot=False)
 
                 # Decorations
                 axs[h, g].set_title(feeder + ', Voltage assistance ' + str(round(value * 100)) + '%', fontsize=12)
@@ -102,7 +110,7 @@ class CorrelationCoeficients():
         self.load_features = PartialPhaseIdentification.load_features
         self._load_features_transfo = PartialPhaseIdentification.load_features_transfo
         self.voltage_features = PartialPhaseIdentification.voltage_features
-        self.voltage_features_transfo = PartialPhaseIdentification._voltage_features_transfo
+        self.voltage_features_transfo = PartialPhaseIdentification.voltage_features_transfo
 
     def pearson_corr_load(self,j,phase):
         phase = phase - 1
@@ -156,4 +164,59 @@ class CorrelationCoeficients():
         plt.scatter(self.corr_vector_voltage(3,3),self.corr_vector_load(3,3),color='tab:green',marker=markers[2])
         plt.xlabel("Voltage correlation", fontsize=12)
         plt.ylabel("Load correlation", fontsize=12)
+        plt.show()
+
+class WrongLabels():
+    def __init__(self, phaseidentification):
+        self.__dict__ = phaseidentification.__dict__.copy()
+
+    def get_mav_imbalance(self):
+        mean_ref = np.mean(self.voltage_features_transfo)
+        mav_imbalance = []
+        for voltage_profile in self.voltage_features:
+            mav_imbalance.append(np.mean(abs(voltage_profile/mean_ref - 1)))
+        return np.array(mav_imbalance)*100
+
+    def visualize_imbalance_correlation(self):
+        plt.figure(figsize=(6, 3))
+        mav_imbalance = self.get_mav_imbalance()
+        correct = mav_imbalance[self.phase_labels == self.partial_phase_labels]
+        wrong = mav_imbalance[self.phase_labels != self.partial_phase_labels]
+        plt.boxplot([correct, wrong],labels=['Correctly allocated customers', 'Wrongly allocated customers'])
+        plt.ylabel("MAV imbalance (%)")
+        plt.show()
+
+    def path_length(self, busId, branches_data):
+        """
+        Backtracking algorithm to find the legth path in a feeder
+        """
+        longest_found = 0
+        for branch in branches_data:
+            if branch.get("downBusId") == busId:
+                return branch.get("cableLength") + self.path_length(branch.get("upBusId"), branches_data)
+
+        if busId == 0:
+            return 0
+
+    def get_customer_path_length(self):
+        with open(os.path.join(os.path.dirname(self._path_topology), self.feederID + "_branches.json")) as branches_file:
+            branches_data = json.load(branches_file)
+
+        customer_path_length = []
+        for customer in self.bus_IDs:
+            customer_path_length += [self.path_length(customer, branches_data)]
+        return np.array(customer_path_length)
+
+    def visualize_length_correlation(self):
+        plt.figure(figsize=(8, 6))
+        mav_imbalance = self.get_mav_imbalance()
+        customer_path_length = self.get_customer_path_length()
+        correct = self.phase_labels == self.partial_phase_labels
+        wrong = self.phase_labels != self.partial_phase_labels
+        plt.scatter(mav_imbalance[correct], customer_path_length[correct], color='tab:green')
+        plt.scatter(mav_imbalance[wrong], customer_path_length[wrong], color='tab:red')
+        #plt.xticks(np.arange(0.998, 1.000, step=0.001))
+        #plt.yticks(np.arange(0.998, 1.000, step=0.001))
+        plt.xlabel("(MAV) Imbalance (%)")
+        plt.ylabel("Distance between consumer and transformer")
         plt.show()

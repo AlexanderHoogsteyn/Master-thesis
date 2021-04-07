@@ -20,10 +20,10 @@ I can improve this by making shure an additional 10 of missing is added in stead
 ##################################################
 """
 
-load_noise = 0.01  # pu
+accuracy_class = 0.00  # pu
 include_three_phase = False
 length = 24 * 15
-cores = 20
+cores = 4
 
 
 def multiprocess(ratio, feeder_i):
@@ -34,23 +34,23 @@ def multiprocess(ratio, feeder_i):
     missing_range = np.arange(0, 1.00, 0.10)
     ratio_range = np.arange(0, 1.1, 0.10)
     tot_scores = np.zeros([len(missing_range), len(length_range)])
-    reps = 100
-
+    reps = 5
+    feeder = Feeder(feederID=included_feeders[feeder_i], include_three_phase=include_three_phase)
+    error = ErrorClass(accuracy_class)
     for rep in range(0, reps):
         scores = []
-        feeder = IntegratedMissingPhaseIdentification(measurement_error=load_noise, feederID=included_feeders[feeder_i],
-                                                      include_three_phase=include_three_phase, length=15 * 24,
-                                                      missing_ratio=0)
+        error.reroll_noise()
+        phase_identification = IntegratedMissingPhaseIdentification(feeder, error)
         for i, value in enumerate(missing_range):
             col = []
             for j, days in enumerate(length_range):
-                feeder.reset_partial_phase_identification()
-                feeder.reset_load_features_transfo()
-                feeder.add_missing(value)
-                feeder.voltage_assisted_load_correlation(sal_treshold_load=0.4, sal_treshold_volt=0.0,
+                phase_identification.reset_partial_phase_identification()
+                phase_identification.reset_load_features_transfo(feeder)
+                phase_identification.add_missing(value)
+                phase_identification.voltage_assisted_load_correlation(sal_treshold_load=0.4, sal_treshold_volt=0.0,
                                                          corr_treshold=0.1, volt_assist=ratio_range[ratio],
                                                          length=24 * days)
-                col += [feeder.accuracy()]
+                col += [phase_identification.accuracy()]
             scores.append(col)
         tot_scores += np.array(scores)
         # print(round(rep / reps * 100), "% complete")
@@ -66,18 +66,18 @@ if __name__ == '__main__':
     ratio_range = np.arange(0, 1.1, 0.1)
     data = {}
     configs = product(range(len(ratio_range)), range(len(included_feeders)))
-    reps = 100
+    reps = 5
     length_range = np.arange(1, 15)
     missing_range = np.arange(0, 1.00, 0.10)
 
     # for g,feeder_id in enumerate(included_feeders):
-    #    for h, ratio in enumerate(ratio_range):
+    #    for h, ratio in enumerate(corr_treshold_range):
 
     with Pool(processes=cores) as pool:
         scores = pool.starmap(multiprocess, configs)
 
 
-    results = {"ratio_range": ratio_range, "length_range": length_range, "missing_range": missing_range,
+    results = {"corr_treshold_range": ratio_range, "corr_treshold_range": length_range, "salient_comp_range": missing_range,
                "reps": reps, "included_feeders": ["Case A","Case B", "Case C","Case D","Case E", "Case F"], "data": dict(zip(product(range(len(ratio_range)), range(len(included_feeders))), scores))}
 
     with open('results_' + str(reps) + 'reps.pickle', 'wb') as handle:

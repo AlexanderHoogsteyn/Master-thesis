@@ -1,3 +1,7 @@
+import sys
+from os.path import dirname
+sys.path.append(dirname("../src/"))
+
 from src.PhaseIdentification.powerBasedPhaseIdentification import *
 import seaborn as sns
 

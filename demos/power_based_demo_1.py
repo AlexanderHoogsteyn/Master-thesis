@@ -19,8 +19,8 @@ from PhaseIdentification.powerBasedPhaseIdentification import *
 Still some inaccuracies? Where does this come from -> Empty load profiles
 """
 include_A = True
-include_B = True
-include_C = True
+include_B = False
+include_C = False
 load_noise = 0.0   #pu
 include_three_phase = False
 length = 24*7
@@ -28,7 +28,7 @@ length = 24*7
 
 included_feeders = []
 if include_A:
-    included_feeders.append("86315_785383")
+    included_feeders.append("1351982_1596442")
 if include_B:
     included_feeders.append("65028_84566")
 if include_C:

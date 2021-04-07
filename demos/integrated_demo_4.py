@@ -15,7 +15,7 @@ but results get stored in pickle file
 I can improve this by making shure an additional 10 of missing is added in stead of all new devices
 ##################################################
 """
-load_noise = 0.01   #pu
+accuracy_class = 0.01   #pu
 include_three_phase = False
 length = 24*15
 
@@ -31,21 +31,22 @@ data = {}
 for g,feeder_id in enumerate(included_feeders):
     for h, ratio in enumerate(ratio_range):
         tot_scores = np.zeros([len(missing_range), len(length_range)])
+        feeder = Feeder(feederID=feeder_id, include_three_phase=include_three_phase)
+        error = ErrorClass(accuracy_class)
         for rep in range(0, reps):
             scores = []
-            feeder = IntegratedMissingPhaseIdentification(measurement_error=load_noise, feederID=feeder_id,
-                                                          include_three_phase=include_three_phase, length=15 * 24,
-                                                          missing_ratio=0)
+            error.reroll_noise()
+            phase_identification = IntegratedMissingPhaseIdentification(feeder, error)
             for i, value in enumerate(missing_range):
                 col = []
                 for j, days in enumerate(length_range):
-                    feeder.reset_partial_phase_identification()
-                    feeder.reset_load_features_transfo()
-                    feeder.add_missing(value)
-                    feeder.voltage_assisted_load_correlation(sal_treshold_load=0.4, sal_treshold_volt=0.0,
+                    phase_identification.reset_partial_phase_identification()
+                    phase_identification.reset_load_features_transfo(feeder)
+                    phase_identification.add_missing(value)
+                    phase_identification.voltage_assisted_load_correlation(sal_treshold_load=0.4, sal_treshold_volt=0.0,
                                                              corr_treshold=0.1, volt_assist=ratio,
-                                                             length=24 * days, printout_level=0)
-                    col += [feeder.accuracy()]
+                                                             length=24 * days, salient_components=4, printout_level=0)
+                    col += [phase_identification.accuracy()]
                 scores.append(col)
             tot_scores += np.array(scores)
             #print(round(rep / reps * 100), "% complete")
@@ -54,7 +55,7 @@ for g,feeder_id in enumerate(included_feeders):
 
         data[(h,g)] = tot_scores
 
-results = {"ratio_range":ratio_range,"length_range":length_range,"missing_range":missing_range,
+results = {"corr_treshold_range":ratio_range,"corr_treshold_range":length_range,"salient_comp_range":missing_range,
            "reps":reps, "included_feeders":["Case A"],"data":data}
 
 with open('results_'+str(reps)+'reps_local.pickle', 'wb') as handle:

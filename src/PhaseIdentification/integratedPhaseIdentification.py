@@ -1,15 +1,16 @@
 from PhaseIdentification.powerBasedPhaseIdentification import *
 from VisualizePhaseIdentification.visualization import *
 import numpy as np
+from numpy.random import default_rng
 
 
 class IntegratedPhaseIdentification(PartialPhaseIdentification):
 
-    def __init__(self, feederID='65019_74469', include_three_phase=False, measurement_error=0.0, length=24):
-        PartialPhaseIdentification.__init__(self, feederID, include_three_phase, measurement_error, length=length)
+    def __init__(self, feeder, error_class=ErrorClass(0)):
+        PartialPhaseIdentification.__init__(self, feeder, error_class)
 
     def voltage_assisted_load_correlation(self, sal_treshold_load=1, sal_treshold_volt=0.4, corr_treshold=0.2,
-                                          volt_assist=0.0, length=24,salient_components=1, printout_level=1):
+                                          volt_assist=0.0, length=24*20,salient_components=1, printout_level=1):
         """
         Also uses salient voltage measurements, therefore also feeder voltage needed
         """
@@ -34,7 +35,7 @@ class IntegratedPhaseIdentification(PartialPhaseIdentification):
 
             # Voltage salient components
             var_volt = np.diff(self.voltage_features[:, 0:length], 1)
-            var_transfo_volt = np.diff(self._voltage_features_transfo[:, 0:length], 1)
+            var_transfo_volt = np.diff(self.voltage_features_transfo[:, 0:length], 1)
             # sal_volt, sal_transfo_volt = self.get_salient_variations(sal_treshold_volt, var_volt, var_transfo_volt)
             # ("# Salient components voltage between ", min(nb_sal), " and ", max(nb_sal))
 
@@ -72,7 +73,7 @@ class IntegratedPhaseIdentification(PartialPhaseIdentification):
 
             # Voltage salient components
             var_volt = np.diff(self.voltage_features[:, 0:length], 1)
-            var_transfo_volt = np.diff(self._voltage_features_transfo[:, 0:length], 1)
+            var_transfo_volt = np.diff(self.voltage_features_transfo[:, 0:length], 1)
             # sal_volt, sal_transfo_volt = self.get_salient_variations(sal_treshold_volt, var_volt, var_transfo_volt)
             # ("# Salient components voltage between ", min(nb_sal), " and ", max(nb_sal))
 
@@ -127,15 +128,12 @@ class IntegratedPhaseIdentification(PartialPhaseIdentification):
             best_phase = 0
             best_corr = -np.inf
 
-            lf = self.load_features_transfo
-            vf = self._voltage_features_transfo
-
             for phase in range(0, 3):
                 sal_phase_volt = sal_transfo_volt[phase]
                 mean_sal_phase_volt = np.mean(sal_phase_volt)
                 std_sal_phase_volt = np.std(sal_phase_volt)
                 if std_sal_phase_volt == 0 or len(sal_volt) == 0:
-                    volt_invalid = True
+                    voltage_invalid = True
 
                 try:
                     corr_volt = 1.0 / (len(sal_volt) - 1) * sum(
@@ -178,31 +176,18 @@ class IntegratedPhaseIdentification(PartialPhaseIdentification):
 
 
 class IntegratedMissingPhaseIdentification(IntegratedPhaseIdentification):
-    def __init__(self, feederID='65019_74469', include_three_phase=False, measurement_error=0.0, length=24,
-                 missing_ratio=0.0):
-        IntegratedPhaseIdentification.__init__(self, feederID, include_three_phase, measurement_error=measurement_error,
-                                               length=length)
+    def __init__(self, feeder, error_class=ErrorClass(0)):
+        IntegratedPhaseIdentification.__init__(self, feeder, error_class=error_class)
         self.nb_missing = 0
         self.nb_original_devices = len(self.phase_labels)
-        nb_to_add = round(len(self.phase_labels) * missing_ratio) - self.nb_missing
-        if nb_to_add < 0:
-            nb_to_add = 0
-
-        i_to_remove = np.random.choice(np.arange(len(self.phase_labels)), nb_to_add, replace=False)
-        self.load_features = np.delete(self.load_features, i_to_remove, axis=0)
-        self.voltage_features = np.delete(self.voltage_features, i_to_remove, axis=0)
-        self.phase_labels = np.delete(self.phase_labels, i_to_remove, axis=0)
-        self.partial_phase_labels = np.delete(self.partial_phase_labels, i_to_remove, axis=0)
-
-        self.nb_missing += len(i_to_remove)
-        self.missing_ratio = missing_ratio
 
     def add_missing(self, ratio):
         nb = round(self.nb_original_devices * ratio)
         nb_to_add = nb - self.nb_missing
         if nb_to_add < 0:
             nb_to_add = 0
-        i_to_remove = np.random.choice(np.arange(len(self.phase_labels)), nb_to_add, replace=False)
+        rng = np.random.default_rng()
+        i_to_remove = rng.choice(len(self.phase_labels), nb_to_add, replace=False)
         self.load_features = np.delete(self.load_features, i_to_remove, axis=0)
         self.voltage_features = np.delete(self.voltage_features, i_to_remove, axis=0)
         self.phase_labels = np.delete(self.phase_labels, i_to_remove, axis=0)

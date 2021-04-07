@@ -14,7 +14,7 @@ class Feeder(object):
     such as list of the features used and the ID's of the feeders.
     """
 
-    def __init__(self, feederID='65019_74469', include_three_phase=False, measurement_error=0.0,length=24):
+    def __init__(self, feederID='65019_74469', include_three_phase=False):
         """
         Initialize the feeder object by reading out the data from JSON files in the specified directory.
         feederID = full identification number of the feeder
@@ -27,7 +27,7 @@ class Feeder(object):
         dir = os.path.dirname(os.path.realpath(__file__))
         self._path_data = os.path.join(dir, "../../data/POLA_data/")
         self._path_topology = os.path.join(dir, "../../data/POLA/")
-        self.length = length
+        self.feederID = feederID
 
         configuration_file = self._path_topology + feederID + '_configuration.json'
         with open(configuration_file) as current_file:
@@ -41,6 +41,7 @@ class Feeder(object):
         self.phase_labels = []
         self.device_IDs = []
         self.multiphase_IDs = []
+        self.bus_IDs = []
         voltage_features = []
         load_features = []
 
@@ -59,40 +60,36 @@ class Feeder(object):
                 #print("device: ", deviceID, " bus: ", busID, " phase: ", device_phases)
                 for phase in device_phases:
                     if phase == 1:
-                        voltage_features.append(voltage_data[str(busID)]["phase_A"][0:length])
-                        load_features.append(load_data[str(deviceID)]["phase_A"][0:length])
+                        voltage_features.append(voltage_data[str(busID)]["phase_A"])
+                        load_features.append(load_data[str(deviceID)]["phase_A"])
                     elif phase == 2:
-                        voltage_features.append(voltage_data[str(busID)]["phase_B"][0:length])
-                        load_features.append(load_data[str(deviceID)]["phase_B"][0:length])
+                        voltage_features.append(voltage_data[str(busID)]["phase_B"])
+                        load_features.append(load_data[str(deviceID)]["phase_B"])
                     elif phase == 3:
-                        voltage_features.append(voltage_data[str(busID)]["phase_C"][0:length])
-                        load_features.append(load_data[str(deviceID)]["phase_C"][0:length])
+                        voltage_features.append(voltage_data[str(busID)]["phase_C"])
+                        load_features.append(load_data[str(deviceID)]["phase_C"])
                     else:
                         raise NameError("Unkown phase connection")
                 if len(device_phases) == 3:
                     self.multiphase_IDs += [deviceID]
                     self.device_IDs += [deviceID, deviceID, deviceID]
+                    self.bus_IDs += [busID, busID, busID]
                 else:
                     self.device_IDs += [deviceID]
+                    self.bus_IDs += [busID]
                 self.phase_labels += device_phases
 
-        self._voltage_features_transfo = np.zeros([3, length])
-        self._voltage_features_transfo[0] = voltage_data["transfo"]["phase_A"][0:length]
-        self._voltage_features_transfo[1] = voltage_data["transfo"]["phase_B"][0:length]
-        self._voltage_features_transfo[2] = voltage_data["transfo"]["phase_C"][0:length]
+        self.voltage_features_transfo = np.zeros([3, len(voltage_data["transfo"]["phase_A"])])
+        self.voltage_features_transfo[0] = voltage_data["transfo"]["phase_A"]
+        self.voltage_features_transfo[1] = voltage_data["transfo"]["phase_B"]
+        self.voltage_features_transfo[2] = voltage_data["transfo"]["phase_C"]
 
-        self.load_features_transfo = np.zeros([3, length])
-        self.load_features_transfo[0] = load_data["transfo"]["phase_A"][0:length]
-        self.load_features_transfo[1] = load_data["transfo"]["phase_B"][0:length]
-        self.load_features_transfo[2] = load_data["transfo"]["phase_C"][0:length]
+        self.load_features_transfo = np.zeros([3, len(load_data["transfo"]["phase_A"])])
+        self.load_features_transfo[0] = load_data["transfo"]["phase_A"]
+        self.load_features_transfo[1] = load_data["transfo"]["phase_B"]
+        self.load_features_transfo[2] = load_data["transfo"]["phase_C"]
 
-        self._load_features_transfo = np.zeros([3, length])
-        self._load_features_transfo[0] = load_data["transfo"]["phase_A"][0:length]
-        self._load_features_transfo[1] = load_data["transfo"]["phase_B"][0:length]
-        self._load_features_transfo[2] = load_data["transfo"]["phase_C"][0:length]
-
-        noise = np.random.normal(0, measurement_error, [np.size(voltage_features, 0), np.size(voltage_features, 1)])
-        self.voltage_features = np.array(voltage_features) + noise
+        self.voltage_features = np.array(voltage_features)
         self.load_features = np.array(load_features)
         self.phase_labels = np.array(self.phase_labels)
 
@@ -129,10 +126,10 @@ class Feeder(object):
         """
         if data == "voltage":
             original_data = self.voltage_features
-            original_transfo_data = self._voltage_features_transfo
+            original_transfo_data = self.voltage_features_transfo
         elif data == "load":
             original_data = self.load_features
-            original_transfo_data = self._voltage_features_transfo
+            original_transfo_data = self.voltage_features_transfo
         else:
             return print("enter voltage or load as data")
 
@@ -161,7 +158,7 @@ class Feeder(object):
         if inplace:
             if data == "voltage":
                 self.voltage_features = np.array(new_data)
-                self._voltage_features_transfo = np.array(new_transfo_data)
+                self.voltage_features_transfo = np.array(new_transfo_data)
             if data == "load":
                 self.load_features = np.array(new_data)
                 self._load_features_transfo = np.array(new_transfo_data)
@@ -169,11 +166,11 @@ class Feeder(object):
             new_self = copy.deepcopy(self)
             if data == "voltage":
                 new_self.voltage_features = np.array(new_data)
-                new_self._voltage_features_transfo = np.array(new_transfo_data)
+                new_self.voltage_features_transfo = np.array(new_transfo_data)
 
             if data == "load":
                 new_self.load_features = np.array(new_data)
-                new_self._voltage_features_transfo = np.array(new_transfo_data)
+                new_self.voltage_features_transfo = np.array(new_transfo_data)
             return new_self
 
     def truncate_voltages(self):
@@ -185,5 +182,36 @@ class Feeder(object):
         vf = np.trunc(vf)
         self.voltage_features = vf
 
+class ErrorClass(object):
+
+    def __init__(self,accuracy_class,s=False,n_power=3.5,n_voltage=230,power_base=500,voltage_base=230):
+        """
+        Adds noise to the data according to the given accuracy class:
+        Common classes: 1.0, 0.5, 0.2, 0.1
+        """
+        self.accuracy_class = accuracy_class
+        self.n_voltage = n_voltage
+        self.n_power = n_power
+        self.power_base = power_base
+        self.voltage_base = voltage_base
+        self.s = s
+        self.set_voltage_noise()
+        self.set_load_noise()
+
+    def set_voltage_noise(self):
+        self.voltage_noise_sigma = self.accuracy_class/3*self.n_voltage/self.voltage_base/100
+
+    def set_load_noise(self):
+        self.load_noise_sigma = self.accuracy_class/3*self.n_power/self.power_base
+
+    def get_voltage_noise(self):
+        return self.voltage_noise_sigma
+
+    def get_load_noise(self):
+        return self.load_noise_sigma
+
+    def reroll_noise(self):
+        self.set_voltage_noise()
+        self.set_load_noise()
 
 

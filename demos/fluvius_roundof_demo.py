@@ -17,8 +17,7 @@ Fluvinus experiment can be done using "truncated"
 include_A = True
 include_B = True
 include_C = True
-voltage_noise = 0.00
-load_noise = 0.00   #pu
+accuracy_class = 0.1
 include_three_phase = True
 length = 24*7
 n_repeats = 1
@@ -31,13 +30,11 @@ if include_B:
 if include_C:
     included_feeders.append("1830188_2181475")
 for feeder_id in included_feeders:
-    feeder = PhaseIdentification(measurement_error=voltage_noise, feederID=feeder_id,
-                                              include_three_phase=include_three_phase,length=length)
-
-
+    feeder = Feeder(feederID=feeder_id,include_three_phase=include_three_phase,length=length)
     feeder.truncate_voltages()
-
-    feeder.voltage_correlation()
-    print("Accuracy using voltage correlation method", " data: ", feeder.accuracy())
+    error = ErrorClass(accuracy_class)
+    phase_identification = PhaseIdentification(feeder, error)
+    phase_identification.voltage_correlation()
+    print("Accuracy using voltage correlation method", " data: ", phase_identification.accuracy())
     feeder.plot_voltages(length=length)
     feeder.plot_load_profiles(length=length)

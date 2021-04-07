@@ -1,10 +1,16 @@
-from src.PhaseIdentification.integratedPhaseIdentification import *
+import sys
+from os.path import dirname
+sys.path.append(dirname("../src/"))
+
+from PhaseIdentification.integratedPhaseIdentification import *
+from PhaseIdentification.common import *
 import seaborn as sns
 
 """
 ##################################################
 DEMO 3
 Influence of voltage assist ratio on accuracy of load based methods
+For multiple feeders
 
 I can improve this by making shure an additional 10 of missing is added in stead of all new devices
 ##################################################
@@ -37,6 +43,7 @@ for g,feeder_id in enumerate(included_feeders):
         tot_scores = np.zeros([len(missing_range), len(length_range)])
         for rep in range(0, reps):
             scores = []
+
             feeder = IntegratedMissingPhaseIdentification(measurement_error=load_noise, feederID=feeder_id,
                                                           include_three_phase=include_three_phase, length=15 * 24,
                                                           missing_ratio=0)

@@ -11,16 +11,19 @@ class PhaseIdentification(Feeder):
     It contains most notably an array with the found phase labels by the method
     """
 
-    def __init__(self, feederID='65019_74469', include_three_phase=False, measurement_error=0.0,length=24):
+    def __init__(self, feeder, error_class=ErrorClass(0)):
         """
         Initialize the PhaseIdentification object by reading out the data from JSON files in the specified directory.
-        feederID = full identification number of the feeder
+        feeder = attach feeder object or feederID
         include_three_phase = put on True if you want to include 3 phase customers in your analysis, 3 phase customers
                               will be regarded as 3 single phase customers
         measurement_error = std of the amount of noise added to the voltage (p.u.)
         length = number of data samples used, the first samples are used
         """
-        Feeder.__init__(self, feederID, include_three_phase, measurement_error,length=length)
+        self.__dict__ = feeder.__dict__.copy()
+        size = (np.size(self.voltage_features,0), np.size(self.voltage_features,1))
+        self.voltage_features = self.voltage_features + np.random.normal(0,error_class.get_voltage_noise(), size)
+        self.load_features = self.load_features + np.random.normal(0,error_class.get_load_noise(), size)
         self._score = np.nan
 
     def hierarchal_clustering(self, n_clusters=3, normalized=True, criterion='avg_silhouette'):
@@ -81,7 +84,7 @@ class PhaseIdentification(Feeder):
         self.partial_phase_labels = best_cluster_labels + 1
         self.match_labels()
 
-    def k_medoids_clustering(self, n_clusters=3, normalized=True, n_repeats=1, criterion='global_silhouette'):
+    def k_medoids_clustering(self, n_clusters=3, normalized=True, n_repeats=1, criterion='avg_silhouette'):
         """
         Method that assigns phase labels to PhaseIdentification object obtained by performing K-medoids++ on the specified feeder.
         A number of repetitions can be specified, the best result according to the specified criterion will be returned
@@ -189,7 +192,7 @@ class PhaseIdentification(Feeder):
         Voltage correlation method that perform phase identification using collected voltage data of the reference transformer
         """
         labels = [1,2,3]
-        profiles = self._voltage_features_transfo
+        profiles = self.voltage_features_transfo
 
         phase_labels = []
         scores = []
