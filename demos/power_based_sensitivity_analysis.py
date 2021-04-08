@@ -46,7 +46,7 @@ for case, feeder_id in enumerate(included_feeders):
     tot_scores = tot_scores/reps
     # Plot
     plt.figure(figsize=(6, 6), dpi=80)
-    y = ["%.2f" % i for i in list(salient_comp_range)]
+    y = ["%.2f" % i for i in list(corr_treshold_range)]
     x = ["%.2f" % i for i in list(salient_comp_range)]
     sns.heatmap(tot_scores, xticklabels=x, yticklabels=y, cmap='RdYlGn', center=0.7,
                 annot=True,cbar=False)

@@ -16,17 +16,19 @@ I can improve this by making shure an additional 10 of missing is added in stead
 ##################################################
 """
 
-included_feeders = ["86315_785383", "65028_84566", "1076069_1274129","1132967_1400879", "65025_80035", "1076069_1274125"]
+#included_feeders = ["86315_785383", "65028_84566", "1076069_1274129","1132967_1400879", "65025_80035", "1076069_1274125"]
+included_feeders = ["86315_785383", "65028_84566", "1076069_1274129", "1351982_1596442", "65025_80035", "1076069_1274125"]
+
 cases = ["Case A","Case B","Case C","Case D","Case E","Case F"]
 include_three_phase = True
-length = 24*14
-salient_components = 4
-reps = 20
+length = 24*20
+salient_components = 1
+reps = 10
 accuracy = 0.1
 
 for case, feeder_id in enumerate(included_feeders):
-    nb_assigments_range = [1]#np.arange(1, 11, 5)
-    salient_comp_range = [10]#np.arange(1, 11, 5)
+    nb_assigments_range = np.array([ 1,  5, 10, 15, 20, 25, 30, 35, 40, 45, 50]) #np.array([1,2,5,10,15,30,45,70])
+    salient_comp_range = np.array([  10,  50, 100, 150, 200, 250, 300, 350, 400, 450, 480])#np.array([10,20,50,100,150,300,450,480])
     tot_scores = np.zeros([len(salient_comp_range), len(nb_assigments_range)])
 
     for rep in range(0,reps):
@@ -36,7 +38,7 @@ for case, feeder_id in enumerate(included_feeders):
             for j, nb_assignments in enumerate(nb_assigments_range):
                 feeder = Feeder(feederID=feeder_id, include_three_phase=include_three_phase)
                 phase_identification = PartialPhaseIdentification(feeder, ErrorClass(accuracy, s=False))
-                phase_identification.load_correlation_enhanced_tuning(nb_assignments=nb_assignments,nb_salient_components=sal_comp, length=length)
+                phase_identification.load_correlation_enhanced_tuning(nb_assignments=nb_assignments,nb_salient_components=sal_comp,salient_components=salient_components, length=length)
 
                 col += [phase_identification.accuracy()]
             scores.append(col)
@@ -44,19 +46,20 @@ for case, feeder_id in enumerate(included_feeders):
         print(round(rep/reps*100), "% complete")
     tot_scores = tot_scores/reps
     # Plot
-    plt.figure(figsize=(12, 10), dpi=80)
-    y = ["%.2f" % i for i in list(salient_comp_range)]
-    x = ["%.2f" % i for i in list(salient_comp_range)]
+    plt.figure(figsize=(6, 6), dpi=80)
+    y = ["%d" % i for i in list(salient_comp_range)]
+    x = ["%d" % i for i in list(nb_assigments_range)]
     sns.heatmap(tot_scores, xticklabels=x, yticklabels=y, cmap='RdYlGn', center=0.7,
                 annot=True,cbar=False)
 
     # Decorations
     plt.title(cases[case], fontsize=16)
     plt.xticks(fontsize=12)
-    plt.xlabel("Assigments / iteration")
-    plt.ylabel("Salient components")
+    plt.xlabel("Assigments / iteration", fontsize=16)
+    plt.ylabel("Salient components", fontsize=16)
     plt.yticks(fontsize=12)
-    plt.show()
+    #plt.show()
+    plt.savefig("treshold_sensitivity_enhanced" + cases[case])
 
 
 

@@ -18,15 +18,17 @@ I can improve this by making sure an additional 10 of missing is added in stead 
 include_three_phase = True
 length = 24*20
 volt_assist = 0
-reps = 1
-sal_treshold = 0.1
-corr_treshold = 0.6
-salient_components = 4
+reps = 20
+salient_components = 1
+nb_salient_components = 400
+nb_assignments = 10
+corr_treshold = 0.4
+salient_treshold = 1.8
 
 #"1132967_1400879" only has 3 customers
-# 'Case D'
-included_feeders = ["86315_785383", "65028_84566", "1076069_1274129", "1132967_1400879", "65025_80035",
-                    "1076069_1274125"]
+#included_feeders = ["86315_785383", "65028_84566", "1076069_1274129", "1132967_1400879", "65025_80035","1076069_1274125"]
+included_feeders = ["86315_785383", "65028_84566", "1076069_1274129", "1351982_1596442", "65025_80035", "1076069_1274125"]
+
 results = []
 for accuracy in [0.1, 0.2, 0.5, 1.0]:
     class_results = []
@@ -35,7 +37,8 @@ for accuracy in [0.1, 0.2, 0.5, 1.0]:
         for rep in np.arange(reps):
             feeder = Feeder(feederID=feeder_id, include_three_phase=include_three_phase)
             phase_identification = PartialPhaseIdentification(feeder, ErrorClass(accuracy, s=False))
-            phase_identification.load_correlation(salient_treshold=sal_treshold, corr_treshold=corr_treshold, salient_components=salient_components, length=24*20)
+            phase_identification.load_correlation(salient_treshold=salient_treshold, corr_treshold=corr_treshold, salient_components=salient_components, length=24*20)
+            #phase_identification.load_correlation_enhanced_tuning(nb_salient_components=nb_salient_components, nb_assignments=nb_assignments, salient_components=salient_components, length=24*20)
             acc = acc + phase_identification.accuracy()
         class_results.append(acc*100/reps)
         print("Feeder: ", feeder_id)
@@ -48,7 +51,8 @@ for accuracy_s in [0.2, 0.5]:
         for rep in np.arange(reps):
             feeder = Feeder(feederID=feeder_id, include_three_phase=include_three_phase)
             phase_identification = PartialPhaseIdentification(feeder, ErrorClass(accuracy_s, s=True))
-            phase_identification.load_correlation(salient_treshold=sal_treshold, corr_treshold=corr_treshold, salient_components=salient_components, length=24*20)
+            phase_identification.load_correlation(salient_treshold=salient_treshold, corr_treshold=corr_treshold, salient_components=salient_components, length=24*20)
+            #phase_identification.load_correlation_enhanced_tuning(nb_salient_components=nb_salient_components, nb_assignments=nb_assignments, salient_components=salient_components, length=24*20)
             acc = acc + phase_identification.accuracy()
         class_results.append(acc*100/reps)
         print("Feeder: ", feeder_id)
@@ -70,6 +74,7 @@ rects6 = ax.bar(x + width*5/2, results[5], width, label='Class 0.5s')
 
 # Add some text for labels, title and custom x-axis tick labels, etc.
 ax.set_ylabel('Accuracy (%)')
+ax.set_ylim([0, 101])
 #ax.set_title('Accuracy by case and accuracy class using voltage Pearson correlation')
 ax.set_xticks(x)
 ax.set_xticklabels(labels)

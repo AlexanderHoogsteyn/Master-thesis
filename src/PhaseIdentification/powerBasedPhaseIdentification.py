@@ -52,8 +52,11 @@ class PartialPhaseIdentification(Feeder):
         """
         Subtracts the load profile from the total and assigns a phase label "phase" to device on index "j"
         """
-        self.load_features_transfo[phase - 1] -= self.load_features[j]
-        self.partial_phase_labels[j] = phase
+        if phase != 4:
+            self.load_features_transfo[phase - 1] -= self.load_features[j]
+            self.partial_phase_labels[j] = phase
+        else:
+            self.partial_phase_labels[j] = 4
 
     def get_salient_variations(self, treshold, var, var_transfo):
         """
@@ -119,7 +122,7 @@ class PartialPhaseIdentification(Feeder):
         else:
             mean_sal = np.mean(sal)
             std_sal = np.std(sal)
-            best_phase = 0
+            best_phase = 4
             best_corr = -np.inf
             lf = self.load_features_transfo
             for phase in range(0, 3):
@@ -151,7 +154,7 @@ class PartialPhaseIdentification(Feeder):
         else:
             mean_sal = np.mean(sal)
             std_sal = np.std(sal)
-            best_phase = 0
+            best_phase = 4
             best_corr = -np.inf
             second_best = 0
             lf = self.load_features_transfo
@@ -205,17 +208,20 @@ class PartialPhaseIdentification(Feeder):
         sal, sal_transfo = self.get_salient_variations_fixed(nb_salient_components, var, var_transfo)
         corr_list = []
         phase_list = []
+        j_list = []
         counter = 0
         for j in range(0,len(self.device_IDs)):
-            phase, corr = self.improved_find_phase(sal[j], sal_transfo[j])
-            corr_list += [corr]
-            phase_list += [phase]
+            if self.partial_phase_labels[j] == 0.0:
+                phase, corr = self.improved_find_phase(sal[j], sal_transfo[j])
+                corr_list += [corr]
+                phase_list += [phase]
+                j_list += [j]
         if len(corr_list) >= nb_assignments:
             ind = np.argpartition(corr_list, -nb_assignments)[-nb_assignments:]
         else:
             ind = range(0, len(corr_list))
         for i in ind:
-            self.sub_load_profile(i, phase_list[i])
+            self.sub_load_profile(j_list[i], phase_list[i])
             counter += 1
 
         progress = sum(np.array(self.partial_phase_labels) != 0) / len(self.partial_phase_labels)
@@ -266,13 +272,10 @@ class PartialPhaseIdentification(Feeder):
         Continues to assign devices as long as progress is being made
         """
         progress = 0.0
-        last_progress = 1.0
-
         self.sort_devices_by_variation()
 
-        while progress < 1.0 and last_progress != progress:
-            last_progress = progress
-            progress = self.assign_devices_enhanced_tuning(nb_salient_components=nb_salient_components,nb_assignments=nb_assignments,length=length)
+        while progress < 1.0:
+            progress = self.assign_devices_enhanced_tuning(nb_salient_components=nb_salient_components,nb_assignments=nb_assignments,salient_components=salient_components,length=length)
 
     def accuracy(self):
         if len(self.partial_phase_labels) != len(self.phase_labels):
