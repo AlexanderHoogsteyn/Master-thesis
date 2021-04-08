@@ -164,7 +164,7 @@ class PhaseIdentification(Feeder):
             labels = labels[id_ == id_3]
         return labels, profiles
 
-    def voltage_correlation(self):
+    def voltage_correlation(self,length=24*20):
         """
         Voltage correlation method to perform phase identification, correlates voltage of each customer to voltage profile
         of 3 phase reference customer and assigns the phase according to which phase it is highest correlated to.
@@ -187,7 +187,7 @@ class PhaseIdentification(Feeder):
         self._n_repeats = 1
         self.partial_phase_labels = phase_labels
 
-    def voltage_correlation_transfo_ref(self):
+    def voltage_correlation_transfo_ref(self,length=24*20):
         """
         Voltage correlation method that perform phase identification using collected voltage data of the reference transformer
         """
@@ -200,8 +200,8 @@ class PhaseIdentification(Feeder):
             corr = 0
             label = np.nan
             for phase in range(0, 3):
-                n_corr = sum((profiles[phase] - np.mean(profiles[phase])) * (device - np.mean(device))) \
-                         / (np.std(profiles[phase]) * np.std(device))
+                n_corr = sum((profiles[phase][0:length] - np.mean(profiles[phase][0:length])) * (device[0:length] - np.mean(device[0:length]))) \
+                         / (np.std(profiles[phase][0:length]) * np.std(device[0:length]))
                 if n_corr > corr:
                     corr = n_corr
                     label = labels[phase]
