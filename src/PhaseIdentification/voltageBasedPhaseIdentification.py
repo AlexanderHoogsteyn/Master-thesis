@@ -47,7 +47,7 @@ class PhaseIdentification(Feeder):
         self.partial_phase_labels = labels + 1
         self.match_labels()
 
-    def k_means_clustering(self, n_clusters=3, normalized=True, n_repeats=1, criterion='avg_silhouette'):
+    def k_means_clustering(self, n_clusters=3, normalized=True, n_repeats=1, criterion='avg_silhouette',length=24*20):
         """
         Method that assigns phase labels to PhaseIdentification object obtained by performing K-means++ on the specified feeder.
         A number of repetitions can be specified, the best result according to the specified criterion will be returned
@@ -59,6 +59,8 @@ class PhaseIdentification(Feeder):
             data = scaler.fit_transform(self.voltage_features)
         else:
             data = self.voltage_features
+
+        self.voltage_features = np.array([x[0:length] for x in self.voltage_features])
 
         if criterion == 'avg_silhouette':
             best_cluster_labels = np.zeros(np.size(data, 0))

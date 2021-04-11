@@ -182,6 +182,22 @@ class Feeder(object):
         vf = np.trunc(vf)
         self.voltage_features = vf
 
+    def lower_data_resolution(self,n):
+        self.voltage_features = np.array([x[::n] for x in self.voltage_features])
+        self.voltage_features_transfo = np.array([x[::n] for x in self.voltage_features_transfo])
+        self.load_features = np.array([x[::n] for x in self.load_features])
+
+    def set_sm_pentration(self,ratio):
+        nb = round(len(self.phase_labels) * ratio)
+        nb_to_remove = len(self.phase_labels) - nb
+        if nb_to_remove < 0:
+            nb_to_remove = 0
+        rng = np.random.default_rng()
+        i_to_remove = rng.choice(len(self.phase_labels), nb_to_remove, replace=False)
+        self.load_features = np.delete(self.load_features, i_to_remove, axis=0)
+        self.voltage_features = np.delete(self.voltage_features, i_to_remove, axis=0)
+        self.phase_labels = np.delete(self.phase_labels, i_to_remove, axis=0)
+
 class ErrorClass(object):
 
     def __init__(self,accuracy_class,s=False,n_power=3.5,n_voltage=230,power_base=500,voltage_base=230):
