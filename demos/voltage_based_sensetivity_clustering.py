@@ -94,7 +94,7 @@ df.loc[8] = ["Length of data collected (+/- 4 days)","increase",acc-base_acc]
 
 #Decrease sample time interval
 acc = 0
-length = 14*24
+length = int(14*24/2)
 for feeder_id in included_feeders:
     for rep in np.arange(reps):
         feeder = Feeder(feederID=feeder_id, include_three_phase=include_three_phase)
@@ -107,6 +107,7 @@ for feeder_id in included_feeders:
 acc = 100*acc/(reps*len(included_feeders))
 df.loc[9] = ["Decrease sample time interval to 2h","decrease",acc-base_acc]
 
+length = int(14*24/3)
 acc = 0
 for feeder_id in included_feeders:
     for rep in np.arange(reps):
@@ -121,6 +122,7 @@ acc = 100*acc/(reps*len(included_feeders))
 df.loc[3] = ["Decrease sample time interval to 3h","decrease",acc-base_acc]
 
 acc = 0
+length = int(14*24)
 for feeder_id in included_feeders:
     for rep in np.arange(reps):
         feeder = Feeder(feederID=feeder_id, include_three_phase=include_three_phase)

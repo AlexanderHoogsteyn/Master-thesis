@@ -186,6 +186,8 @@ class Feeder(object):
         self.voltage_features = np.array([x[::n] for x in self.voltage_features])
         self.voltage_features_transfo = np.array([x[::n] for x in self.voltage_features_transfo])
         self.load_features = np.array([x[::n] for x in self.load_features])
+        self.load_features_transfo = np.array([x[::n] for x in self.load_features_transfo])
+
 
     def set_sm_pentration(self,ratio):
         nb = round(len(self.phase_labels) * ratio)
