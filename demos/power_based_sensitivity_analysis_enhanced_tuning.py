@@ -21,7 +21,7 @@ cases = ["Case A","Case B","Case C","Case D","Case E","Case F"]
 include_three_phase = True
 length = 24*20
 salient_components = 1
-reps = 40
+reps = 1
 accuracy = 0.1
 sal_treshold = 2
 
