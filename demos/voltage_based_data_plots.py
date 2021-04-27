@@ -6,7 +6,7 @@ sys.path.append(dirname("../src/"))
 from src.PhaseIdentification.voltageBasedPhaseIdentification import *
 from src.PhaseIdentification.integratedPhaseIdentification import *
 
-feeder = PhaseIdentification(measurement_error=0, feederID="1830188_2181475", include_three_phase=False, length=24*7)
+feeder = Feeder(feederID="1351982_1596442", include_three_phase=False)
 
 voltage_data = feeder.voltage_features
 plt.figure(figsize=(6, 3))

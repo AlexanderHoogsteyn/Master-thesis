@@ -21,9 +21,10 @@ class PhaseIdentification(Feeder):
         length = number of data samples used, the first samples are used
         """
         self.__dict__ = feeder.__dict__.copy()
-        size = (np.size(self.voltage_features,0), np.size(self.voltage_features,1))
-        self.voltage_features = self.voltage_features + np.random.normal(0,error_class.get_voltage_noise(), size)
-        self.load_features = self.load_features + np.random.normal(0,error_class.get_load_noise(), size)
+        size_v = (np.size(self.voltage_features,0), np.size(self.voltage_features,1))
+        size_p = (np.size(self.load_features,0), np.size(self.load_features,1))
+        self.voltage_features = self.voltage_features + np.random.normal(0,error_class.get_voltage_noise(), size_v)
+        self.load_features = self.load_features + np.random.normal(0,error_class.get_load_noise(), size_p)
         self._score = np.nan
 
     def hierarchal_clustering(self, n_clusters=3, normalized=True, criterion='avg_silhouette'):
@@ -199,16 +200,21 @@ class PhaseIdentification(Feeder):
         phase_labels = []
         scores = []
         for device in self.voltage_features:
-            corr = 0
-            label = np.nan
+            corr = -np.inf
+            label = 0
             for phase in range(0, 3):
+                std_transfo = np.std(profiles[phase][0:length])
+                std_customer = np.std(device[0:length])
                 n_corr = sum((profiles[phase][0:length] - np.mean(profiles[phase][0:length])) * (device[0:length] - np.mean(device[0:length]))) \
-                         / (np.std(profiles[phase][0:length]) * np.std(device[0:length]))
+                         / (std_transfo * std_customer)
                 if n_corr > corr:
                     corr = n_corr
                     label = labels[phase]
             phase_labels += [label]
             scores += [corr]
+            if label == 0:
+                print('Phase could not be allocated, Corr: ', corr, ' std transfo: ',std_transfo,' std consumer: ',std_customer)
+
         self._algorithm = 'voltage_correlation'
         self._n_repeats = 1
         self.partial_phase_labels = phase_labels

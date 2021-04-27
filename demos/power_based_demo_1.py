@@ -18,25 +18,23 @@ from PhaseIdentification.powerBasedPhaseIdentification import *
 ##################################################
 Still some inaccuracies? Where does this come from -> Empty load profiles
 """
-include_A = True
-include_B = False
-include_C = False
-load_noise = 0.0   #pu
-include_three_phase = False
-length = 24*7
+include_three_phase = True
+length = 24*20
+accuracy_class = 0.1
+reps = 100
 
 
-included_feeders = []
-if include_A:
-    included_feeders.append("1351982_1596442")
-if include_B:
-    included_feeders.append("65028_84566")
-if include_C:
-    included_feeders.append("1830188_2181475")
+included_feeders = ["1351982_1596442"]
 
-for feeder_id in included_feeders:
+cases = ["Case D"]
 
-    load_feeder = PartialPhaseIdentification(measurement_error=load_noise, feederID=feeder_id,
-                                             include_three_phase=include_three_phase)
-    print("Start load correlation algorithm for ", feeder_id)
-    load_feeder.load_correlation(sal_treshold=0.1, corr_treshold=0.0)
+
+for i, feeder_id in enumerate(included_feeders):
+    acc = 0
+    for rep in range(reps):
+        feeder = Feeder(feederID=feeder_id, include_three_phase=include_three_phase)
+        phase_identification = PartialPhaseIdentification(feeder, ErrorClass(accuracy_class))
+        #phase_identification.load_correlation_xu_fixed(nb_salient_components=440, length=length, salient_components=1)
+        phase_identification.load_correlation_xu_fixed(nb_salient_components=400,salient_components=1)
+        acc = acc + phase_identification.accuracy()
+    print(cases[i], " acc uracy = ", 100*acc/reps)

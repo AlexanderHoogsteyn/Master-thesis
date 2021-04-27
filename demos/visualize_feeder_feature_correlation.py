@@ -9,7 +9,7 @@ from src.PhaseIdentification.powerBasedPhaseIdentification import *
 import matplotlib.lines as lines
 
 #
-feeder = Feeder("65028_84566",include_three_phase=True)
+feeder = Feeder("1351982_1596442",include_three_phase=True)
 phaseID = PhaseIdentification(feeder, ErrorClass(0.1))
 phaseID.voltage_correlation()
 # viz = WrongLabels(phaseID)
@@ -56,6 +56,7 @@ plt.show()
 # plt.show()
 #
 included_feeders = ["86315_785383", "65028_84566", "1076069_1274129", "1351982_1596442", "65025_80035", "1076069_1274125"]
+#included_feeders = ["1351982_1596442"]
 markers = ["s", "o", "D", ">", "<", "v", "+"]
 
 plt.figure(figsize=(14, 8))

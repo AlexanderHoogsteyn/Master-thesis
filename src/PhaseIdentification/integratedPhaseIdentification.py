@@ -1,7 +1,9 @@
 from PhaseIdentification.powerBasedPhaseIdentification import *
+from PhaseIdentification.voltageBasedPhaseIdentification import *
 from VisualizePhaseIdentification.visualization import *
 import numpy as np
 from numpy.random import default_rng
+import copy
 
 
 class IntegratedPhaseIdentification(PartialPhaseIdentification):
@@ -195,3 +197,75 @@ class IntegratedMissingPhaseIdentification(IntegratedPhaseIdentification):
 
         self.nb_missing += len(i_to_remove)
         self.missing_ratio = ratio
+
+
+def power_voltage_conform_method(feeder, length=24*20, salient_components=1,nb_salient_components=400,voltage_meter_penetration=1):
+    nb_devices = len(feeder.device_IDs)
+    phase_identification_volt = PhaseIdentification(feeder)
+    phase_identification_load = PartialPhaseIdentification(feeder)
+    phase_identification_load.sort_devices_by_variation()
+
+    phase_identification_volt.sort_devices_by_variation()
+    phase_identification_volt.voltage_correlation_transfo_ref(length=length)
+    nb_devices = len(phase_identification_volt.partial_phase_labels)
+    meters_without_voltage_data = np.sort(np.random.choice(nb_devices,int(nb_devices*(1-voltage_meter_penetration)),replace=False))
+    phase_labels_volt = np.array(phase_identification_volt.partial_phase_labels)
+    phase_labels_volt[meters_without_voltage_data] = 5
+
+    combined_phase_labels = np.zeros(nb_devices)
+    feeder_combined = copy.deepcopy(feeder)
+    phase_identification_combined = PartialPhaseIdentification(feeder_combined)
+    phase_identification_combined.sort_devices_by_variation()
+    progress = 1
+    prev_conform_i = np.array([False]*len(feeder_combined.device_IDs))
+    while progress > 0:
+        phase_identification_load.load_correlation_xu_no_sort(nb_salient_components=nb_salient_components,
+                                                            salient_components=salient_components, length=length)
+        conform_i = phase_identification_load.partial_phase_labels == phase_labels_volt
+        combined_phase_labels[conform_i] = phase_identification_load.partial_phase_labels[conform_i]
+        remaining = np.arange(0, nb_devices, 1)[np.logical_xor(conform_i, prev_conform_i)]
+        for i in remaining:
+            phase_identification_combined.sub_load_profile(i, int(combined_phase_labels[i]))
+        phase_identification_load = copy.deepcopy(phase_identification_combined)
+        prev_conform_i = conform_i
+        progress = len(remaining)
+
+    phase_identification_combined.load_correlation_xu_no_sort(nb_salient_components=nb_salient_components,
+                                                            salient_components=salient_components, length=length)
+    acc_combined = phase_identification_combined.accuracy()
+    print("Combined method accuracy: ", acc_combined)
+    return acc_combined
+
+def voltage_assisted_power_based_method(feeder,length=24*20, salient_components=1,nb_salient_components=400,voltage_meter_penetration=1,select_biggest=False):
+    nb_devices = len(feeder.device_IDs)
+    feeder_load = copy.deepcopy(feeder)
+    phase_identification_volt = PhaseIdentification(feeder)
+    phase_identification_volt.sort_devices_by_variation()
+    phase_identification_volt.voltage_correlation_transfo_ref(length=length)
+    nb_devices = len(phase_identification_volt.partial_phase_labels)
+    if select_biggest==False:
+        meters_without_voltage_data = np.sort(
+            np.random.choice(nb_devices, int(nb_devices * (1 - voltage_meter_penetration)), replace=False))
+        phase_labels_volt = np.array(phase_identification_volt.partial_phase_labels)
+        phase_labels_volt[meters_without_voltage_data] = 5
+    else:
+        number = int(nb_devices * (1 - voltage_meter_penetration))
+        total_load = np.sum(feeder.load_features, axis=1)
+        phase_labels_volt = np.array(phase_identification_volt.partial_phase_labels)
+        if number == len(total_load):
+            phase_labels_volt = np.array([5]*number)
+        elif number != 0:
+            meters_without_voltage_data = np.argpartition(total_load, number)[:number]
+            phase_labels_volt[meters_without_voltage_data] = 5
+
+
+    phase_identification_load = PartialPhaseIdentification(feeder_load)
+    phase_identification_load.sort_devices_by_variation()
+    for i, phase in enumerate(phase_labels_volt):
+        phase_identification_load.sub_load_profile(i,int(phase))
+
+    phase_identification_load.load_correlation_xu_no_sort(nb_salient_components=nb_salient_components,
+                                                              salient_components=salient_components, length=length)
+    acc_combined = phase_identification_load.accuracy()
+    print("Combined method accuracy: ", acc_combined)
+    return acc_combined

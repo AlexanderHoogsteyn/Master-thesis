@@ -7,6 +7,37 @@ import copy
 import glob
 import matplotlib.pyplot as plt
 
+class ErrorClass(object):
+
+    def __init__(self,accuracy_class,s=False,n_power=3.5,n_voltage=230,power_base=500,voltage_base=230):
+        """
+        Adds noise to the data according to the given accuracy class:
+        Common classes: 1.0, 0.5, 0.2, 0.1
+        """
+        self.accuracy_class = accuracy_class
+        self.n_voltage = n_voltage
+        self.n_power = n_power
+        self.power_base = power_base
+        self.voltage_base = voltage_base
+        self.s = s
+        self.set_voltage_noise()
+        self.set_load_noise()
+
+    def set_voltage_noise(self):
+        self.voltage_noise_sigma = self.accuracy_class/3*self.n_voltage/self.voltage_base/100
+
+    def set_load_noise(self):
+        self.load_noise_sigma = self.accuracy_class/3*self.n_power/self.power_base
+
+    def get_voltage_noise(self):
+        return self.voltage_noise_sigma
+
+    def get_load_noise(self):
+        return self.load_noise_sigma
+
+    def reroll_noise(self):
+        self.set_voltage_noise()
+        self.set_load_noise()
 
 class Feeder(object):
     """
@@ -14,7 +45,7 @@ class Feeder(object):
     such as list of the features used and the ID's of the feeders.
     """
 
-    def __init__(self, feederID='65019_74469', include_three_phase=False):
+    def __init__(self, feederID='65019_74469', include_three_phase=False,error_class=ErrorClass(0)):
         """
         Initialize the feeder object by reading out the data from JSON files in the specified directory.
         feederID = full identification number of the feeder
@@ -56,28 +87,33 @@ class Feeder(object):
             deviceID = device.get("deviceId")
             busID = device.get("busId")
             device_phases = device.get("phases")
+            empty_power_profile = False
             if include_three_phase or len(device_phases) == 1:
                 #print("device: ", deviceID, " bus: ", busID, " phase: ", device_phases)
                 for phase in device_phases:
-                    if phase == 1:
-                        voltage_features.append(voltage_data[str(busID)]["phase_A"])
-                        load_features.append(load_data[str(deviceID)]["phase_A"])
-                    elif phase == 2:
-                        voltage_features.append(voltage_data[str(busID)]["phase_B"])
-                        load_features.append(load_data[str(deviceID)]["phase_B"])
-                    elif phase == 3:
-                        voltage_features.append(voltage_data[str(busID)]["phase_C"])
-                        load_features.append(load_data[str(deviceID)]["phase_C"])
+                    v = voltage_data[str(busID)]
+                    p = load_data[str(deviceID)]
+                    if phase == 1 and np.mean(p["phase_A"]) != 0:
+                        voltage_features.append(v["phase_A"])
+                        load_features.append(p["phase_A"])
+                    elif phase == 2 and np.mean(p["phase_B"]) != 0:
+                        voltage_features.append(v["phase_B"])
+                        load_features.append(p["phase_B"])
+                    elif phase == 3 and np.mean(p["phase_C"]) != 0:
+                        voltage_features.append(v["phase_C"])
+                        load_features.append(p["phase_C"])
                     else:
-                        raise NameError("Unkown phase connection")
-                if len(device_phases) == 3:
+                        empty_power_profile = True
+                if len(device_phases) == 3 and not empty_power_profile:
                     self.multiphase_IDs += [deviceID]
                     self.device_IDs += [deviceID, deviceID, deviceID]
                     self.bus_IDs += [busID, busID, busID]
-                else:
+                    self.phase_labels += device_phases
+                elif not empty_power_profile:
                     self.device_IDs += [deviceID]
                     self.bus_IDs += [busID]
-                self.phase_labels += device_phases
+                    self.phase_labels += device_phases
+
 
         self.voltage_features_transfo = np.zeros([3, len(voltage_data["transfo"]["phase_A"])])
         self.voltage_features_transfo[0] = voltage_data["transfo"]["phase_A"]
@@ -92,6 +128,17 @@ class Feeder(object):
         self.voltage_features = np.array(voltage_features)
         self.load_features = np.array(load_features)
         self.phase_labels = np.array(self.phase_labels)
+
+        size = (np.size(self.voltage_features, 0), np.size(self.voltage_features, 1))
+        if error_class.s == False:
+            self.voltage_features = self.voltage_features + np.random.normal(0,error_class.get_load_noise(), size)
+            self.load_features = self.load_features + np.random.normal(0,error_class.get_load_noise(), size)
+        else:
+            self.voltage_features = self.voltage_features + np.random.normal(0,error_class.get_load_noise(), size)
+            self.load_features = np.random.normal(self.load_features, self.load_features * error_class.accuracy_class/3)
+        self.partial_phase_labels = np.zeros(len(self.phase_labels))
+
+
 
 
     def plot_data(self, data, ylabel="(pu)", length=24):
@@ -200,36 +247,40 @@ class Feeder(object):
         self.voltage_features = np.delete(self.voltage_features, i_to_remove, axis=0)
         self.phase_labels = np.delete(self.phase_labels, i_to_remove, axis=0)
 
-class ErrorClass(object):
-
-    def __init__(self,accuracy_class,s=False,n_power=3.5,n_voltage=230,power_base=500,voltage_base=230):
+    def sort_devices_by_variation(self):
         """
-        Adds noise to the data according to the given accuracy class:
-        Common classes: 1.0, 0.5, 0.2, 0.1
+        Devices are sorted such that the phases with highest variability are handled first
+        using mean absolute variability (MAV)
         """
-        self.accuracy_class = accuracy_class
-        self.n_voltage = n_voltage
-        self.n_power = n_power
-        self.power_base = power_base
-        self.voltage_base = voltage_base
-        self.s = s
-        self.set_voltage_noise()
-        self.set_load_noise()
+        lf = self.load_features
+        vf = self.voltage_features
+        lf_var = np.diff(self.load_features, 1)
+        i = np.array(self.device_IDs)
+        lf_mav = []
+        for col in lf_var:
+            lf_mav.append(sum(abs(col))/len(col))
+        lf_mav = np.array(lf_mav)
+        sort_order = lf_mav.argsort()
+        #sort_order = np.mean(abs(lf_var),axis=1).argsort()
+        self.device_IDs = i[sort_order[::-1]]
+        self.load_features = lf[sort_order[::-1]]
+        self.voltage_features = vf[sort_order[::-1]]
+        self.phase_labels = np.array(self.phase_labels)[sort_order[::-1]]
 
-    def set_voltage_noise(self):
-        self.voltage_noise_sigma = self.accuracy_class/3*self.n_voltage/self.voltage_base/100
+    def random_sort(self):
+        lf = self.load_features
+        vf = self.voltage_features
+        i = np.array(self.device_IDs)
+        sort_order = np.random.permutation(len(self.device_IDs))
+        self.device_IDs = i[sort_order[::-1]]
+        self.load_features = lf[sort_order[::-1]]
+        self.voltage_features = vf[sort_order[::-1]]
+        self.phase_labels = np.array(self.phase_labels)[sort_order[::-1]]
 
-    def set_load_noise(self):
-        self.load_noise_sigma = self.accuracy_class/3*self.n_power/self.power_base
-
-    def get_voltage_noise(self):
-        return self.voltage_noise_sigma
-
-    def get_load_noise(self):
-        return self.load_noise_sigma
-
-    def reroll_noise(self):
-        self.set_voltage_noise()
-        self.set_load_noise()
-
-
+    def build_power_features(self,diff=0):
+        lf = np.diff(self.load_features, diff)
+        lf_transfo = np.diff(self.load_features_transfo, diff)
+        lf_a = np.array([lf[i]/lf_transfo[0] for i in range(0,len(lf))])
+        lf_b = np.array([lf[i]/lf_transfo[1] for i in range(0,len(lf))])
+        lf_c = np.array([lf[i]/lf_transfo[2] for i in range(0,len(lf))])
+        return np.concatenate([lf_a, lf_b, lf_c], axis=1)

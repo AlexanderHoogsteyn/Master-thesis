@@ -3,6 +3,7 @@ from os.path import dirname
 sys.path.append(dirname("../src/"))
 
 from src.PhaseIdentification.voltageBasedPhaseIdentification import *
+from src.PhaseIdentification.integratedPhaseIdentification import *
 from src.PhaseIdentification.common import *
 from src.PhaseIdentification.integratedPhaseIdentification import *
 
@@ -18,12 +19,12 @@ I can improve this by making sure an additional 10 of missing is added in stead 
 include_three_phase = True
 length = 24*20
 volt_assist = 0
-reps = 20
+reps = 10
 salient_components = 1
 nb_salient_components = 400
 nb_assignments = 10
 corr_treshold = 0.4
-salient_treshold = 1.8
+salient_treshold = 200
 
 #"1132967_1400879" only has 3 customers
 #included_feeders = ["86315_785383", "65028_84566", "1076069_1274129", "1132967_1400879", "65025_80035","1076069_1274125"]
@@ -35,10 +36,14 @@ for accuracy in [0.1, 0.2, 0.5, 1.0]:
     for feeder_id in included_feeders:
         acc = 0
         for rep in np.arange(reps):
-            feeder = Feeder(feederID=feeder_id, include_three_phase=include_three_phase)
-            phase_identification = PartialPhaseIdentification(feeder, ErrorClass(accuracy, s=False))
-            phase_identification.load_correlation(salient_treshold=salient_treshold, corr_treshold=corr_treshold, salient_components=salient_components, length=24*20)
+            feeder = Feeder(feederID=feeder_id, include_three_phase=include_three_phase,error_class=ErrorClass(accuracy, s=False))
+            phase_identification = PartialPhaseIdentification(feeder)
+            #phase_identification.load_correlation(salient_treshold=salient_treshold, corr_treshold=corr_treshold, salient_components=salient_components, length=24*20)
             #phase_identification.load_correlation_enhanced_tuning(nb_salient_components=nb_salient_components, nb_assignments=nb_assignments, salient_components=salient_components, length=24*20)
+            phase_identification.load_correlation_xu(salient_components=salient_components,length=length,salient_treshold=salient_treshold)
+            #phase_identification.load_correlation_xu_fixed(salient_components=salient_components,length=length,nb_salient_components=nb_salient_components)
+            #acc = acc + power_voltage_conform_method(feeder,length,salient_components=salient_components,nb_salient_components=\
+            #nb_salient_components,error_class=ErrorClass(accuracy, s=False))
             acc = acc + phase_identification.accuracy()
         class_results.append(acc*100/reps)
         print("Feeder: ", feeder_id)
@@ -49,14 +54,19 @@ for accuracy_s in [0.2, 0.5]:
     for feeder_id in included_feeders:
         acc = 0
         for rep in np.arange(reps):
-            feeder = Feeder(feederID=feeder_id, include_three_phase=include_three_phase)
-            phase_identification = PartialPhaseIdentification(feeder, ErrorClass(accuracy_s, s=True))
-            phase_identification.load_correlation(salient_treshold=salient_treshold, corr_treshold=corr_treshold, salient_components=salient_components, length=24*20)
+            feeder = Feeder(feederID=feeder_id, include_three_phase=include_three_phase,error_class=ErrorClass(accuracy_s, s=True))
+            phase_identification = PartialPhaseIdentification(feeder)
+            #phase_identification.load_correlation(salient_treshold=salient_treshold, corr_treshold=corr_treshold, salient_components=salient_components, length=24*20)
             #phase_identification.load_correlation_enhanced_tuning(nb_salient_components=nb_salient_components, nb_assignments=nb_assignments, salient_components=salient_components, length=24*20)
+            phase_identification.load_correlation_xu(salient_components=salient_components,length=length,salient_treshold=salient_treshold)
+            #phase_identification.load_correlation_xu_fixed(salient_components=salient_components,length=length,nb_salient_components=nb_salient_components)
+            #acc = acc + power_voltage_conform_method(feeder,length,salient_components=salient_components,nb_salient_components=\
+            #nb_salient_components,error_class=ErrorClass(accuracy, s=False))
             acc = acc + phase_identification.accuracy()
         class_results.append(acc*100/reps)
         print("Feeder: ", feeder_id)
     results.append(class_results)
+
 
 
 labels = ['Case A', 'Case B', 'Case C','Case D', 'Case E', 'Case F']
@@ -65,13 +75,12 @@ x = np.arange(len(labels))  # the label locations
 width = 0.15  # the width of the bars
 
 fig, ax = plt.subplots(figsize=(9,3))
-rects1 = ax.bar(x - width*5/2, results[0], width, label='Class 0.1')
-rects2 = ax.bar(x - width*3/2, results[1], width, label='Class 0.2')
-rects3 = ax.bar(x - width/2, results[2], width, label='Class 0.5')
-rects4 = ax.bar(x + width/2, results[3], width, label='Class 1.0')
-rects5 = ax.bar(x + width*3/2, results[4], width, label='Class 0.2s')
-rects6 = ax.bar(x + width*5/2, results[5], width, label='Class 0.5s')
-
+rects3 = ax.bar(x - width/2, results[0], width, label='Class 0.1')
+rects4 = ax.bar(x + width/2, results[1], width, label='Class 0.2')
+rects5 = ax.bar(x + width*3/2, results[2], width, label='Class 0.5')
+rects6 = ax.bar(x + width*5/2, results[3], width, label='Class 1.0')
+rects1 = ax.bar(x - width*5/2, results[4], width, label='Class 0.2s')
+rects2 = ax.bar(x - width*3/2, results[5], width, label='Class 0.5s')
 # Add some text for labels, title and custom x-axis tick labels, etc.
 ax.set_ylabel('Accuracy (%)')
 ax.set_ylim([0, 101])

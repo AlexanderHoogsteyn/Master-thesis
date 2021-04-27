@@ -1,5 +1,7 @@
 from PhaseIdentification.common import *
 import numpy as np
+import matplotlib.pyplot as plt
+import datetime
 
 
 class PartialPhaseIdentification(Feeder):
@@ -28,33 +30,19 @@ class PartialPhaseIdentification(Feeder):
             self.load_features = np.random.normal(self.load_features, self.load_features * error_class.accuracy_class/3)
         self.partial_phase_labels = np.zeros(len(self.phase_labels))
 
-    def sort_devices_by_variation(self):
-        """
-        Devices are sorted such that the phases with highest variability are handled first
-        using mean absolute variability (MAV)
-        """
-        lf = self.load_features
-        vf = self.voltage_features
-        lf_var = np.diff(self.load_features, 1)
-        i = np.array(self.device_IDs)
-        lf_mav = []
-        for col in lf_var:
-            lf_mav.append(sum(abs(col))/len(col))
-        lf_mav = np.array(lf_mav)
-        sort_order = lf_mav.argsort()
-        #sort_order = np.mean(abs(lf_var),axis=1).argsort()
-        self.device_IDs = i[sort_order[::-1]]
-        self.load_features = lf[sort_order[::-1]]
-        self.voltage_features = vf[sort_order[::-1]]
-        self.phase_labels = np.array(self.phase_labels)[sort_order[::-1]]
+
 
     def sub_load_profile(self,j,phase):
         """
         Subtracts the load profile from the total and assigns a phase label "phase" to device on index "j"
         """
-        if phase != 4:
+        if phase == 1 or phase == 2 or phase == 3:
             self.load_features_transfo[phase - 1] -= self.load_features[j]
             self.partial_phase_labels[j] = phase
+        elif phase == 5:
+            # If i marked as customer without meter (phase==5)
+            # do not allocate yet
+            self.partial_phase_labels[j] = 0
         else:
             self.partial_phase_labels[j] = 4
 
@@ -66,14 +54,13 @@ class PartialPhaseIdentification(Feeder):
         sal_transfo = []
         total_var = sum(var_transfo)
         pl = self.partial_phase_labels
-        l = len(pl[pl == 0]) / treshold
         for j in range(0,len(self.phase_labels)):
             new_row = []
             new_row_transfo_a = []
             new_row_transfo_b = []
             new_row_transfo_c = []
             for t in range(1, len(var[0])):
-                if abs(var[j,t])*l > total_var[t] - var[j,t]:
+                if abs(var[j,t]) > treshold*(total_var[t] - var[j,t])/len(self.phase_labels):
                     new_row += [var[j, t]]
                     new_row_transfo_a += [var_transfo[0, t]]
                     new_row_transfo_b += [var_transfo[1, t]]
@@ -85,6 +72,30 @@ class PartialPhaseIdentification(Feeder):
         sal_transfo = np.array(sal_transfo)
         return sal, sal_transfo
 
+    def get_salient_variation(self, treshold, var, var_transfo):
+        """
+        Sets the salient variations taking into account the remaining devices and threshold
+        """
+        sal = []
+        sal_transfo = []
+        sal_transfo_a = []
+        sal_transfo_b = []
+        sal_transfo_c = []
+        total_var = sum(var_transfo)
+        ind = []
+        pl = self.partial_phase_labels
+        for t in range(1, len(var)):
+            if abs(var[t]) > treshold*(total_var[t] - var[t])/len(self.phase_labels):
+                sal += [var[t]]
+                sal_transfo_a += [var_transfo[0, t]]
+                sal_transfo_b += [var_transfo[1, t]]
+                sal_transfo_c += [var_transfo[2, t]]
+                ind += [t]
+        sal = np.array(sal)
+        sal_transfo = np.array([sal_transfo_a, sal_transfo_b, sal_transfo_c])
+        #plot_salient_comp(var, sal, np.array(ind))
+        return sal, sal_transfo
+
     def get_salient_variations_fixed(self, number, var, var_transfo):
         """
         Sets the salient variations taking into account the remaining devices and threshold
@@ -92,7 +103,8 @@ class PartialPhaseIdentification(Feeder):
         sal = []
         sal_transfo = []
         for j in range(0,len(self.phase_labels)):
-            ind = np.argpartition(var[j], -number)[-number:]
+            cf = var/sum(var_transfo)
+            ind = np.argpartition(cf[j], -number)[-number:]
             new_row = var[j][ind]
             new_row_transfo_a = var_transfo[0][ind]
             new_row_transfo_b = var_transfo[1][ind]
@@ -104,6 +116,22 @@ class PartialPhaseIdentification(Feeder):
         sal_transfo = np.array(sal_transfo)
         return sal, sal_transfo
 
+    def get_salient_variation_fixed(self, number, var, var_transfo):
+        """
+        Sets the salient variations taking into account the remaining devices and threshold
+        """
+        total_var = sum(var_transfo)
+        pl = self.partial_phase_labels
+        cf = var/sum(var_transfo)
+        ind = np.argpartition(cf, -number)[-number:]
+        sal = var[ind]
+        sal_transfo_a = var_transfo[0][ind]
+        sal_transfo_b = var_transfo[1][ind]
+        sal_transfo_c = var_transfo[2][ind]
+        sal = np.array(sal)
+        sal_transfo = np.array([sal_transfo_a, sal_transfo_b, sal_transfo_c])
+        #plot_salient_comp(var,sal,ind)
+        return sal, sal_transfo
 
     def find_phase(self, sal, sal_transfo):
         """
@@ -178,10 +206,8 @@ class PartialPhaseIdentification(Feeder):
     def assign_devices(self, sal_treshold=0.01, corr_treshold=0.0,salient_components=1,length=24*20):
         """
         """
-        var = tuple(np.diff(self.load_features[:, 0:length], k) for k in range(0, salient_components))
-        var_transfo = tuple(np.diff(self.load_features_transfo[:, 0:length], k) for k in range(0, salient_components))
-        var = np.concatenate(var, axis=1)
-        var_transfo = np.concatenate(var_transfo, axis=1)
+        var = np.diff(self.load_features[:, 0:length], salient_components)
+        var_transfo = np.diff(self.load_features_transfo[:, 0:length], salient_components)
         sal, sal_transfo = self.get_salient_variations(sal_treshold, var, var_transfo)
         counter = 0
         for j in range(0,len(self.device_IDs)):
@@ -201,10 +227,8 @@ class PartialPhaseIdentification(Feeder):
     def assign_devices_enhanced_tuning(self, nb_salient_components=10, nb_assignments=10, salient_components=1,length=24*20):
         """
         """
-        var = tuple(np.diff(self.load_features[:, 0:length], k) for k in range(0, salient_components))
-        var_transfo = tuple(np.diff(self.load_features_transfo[:, 0:length], k) for k in range(0, salient_components))
-        var = np.concatenate(var, axis=1)
-        var_transfo = np.concatenate(var_transfo, axis=1)
+        var = np.diff(self.load_features[:, 0:length], salient_components)
+        var_transfo = np.diff(self.load_features_transfo[:, 0:length], salient_components)
         sal, sal_transfo = self.get_salient_variations_fixed(nb_salient_components, var, var_transfo)
         corr_list = []
         phase_list = []
@@ -232,10 +256,8 @@ class PartialPhaseIdentification(Feeder):
     def finish_assign_devices(self, sal_treshold=0.01,salient_components=1,length=24*20):
         """
         """
-        var = tuple(np.diff(self.load_features[:, 0:length], k) for k in range(0, salient_components))
-        var_transfo = tuple(np.diff(self.load_features_transfo[:, 0:length], k) for k in range(0, salient_components))
-        var = np.concatenate(var, axis=1)
-        var_transfo = np.concatenate(var_transfo, axis=1)
+        var = np.diff(self.load_features[:, 0:length], salient_components)
+        var_transfo = np.diff(self.load_features_transfo[:, 0:length], salient_components)
         sal, sal_transfo = self.get_salient_variations(sal_treshold, var, var_transfo)
         counter = 0
         for j in range(0,len(self.device_IDs)):
@@ -251,24 +273,57 @@ class PartialPhaseIdentification(Feeder):
         print(counter, " devices allocated, ", progress*100, "% done, accuracy ", acc*100, "%")
         return progress
 
-    def load_correlation(self,salient_treshold=0.01, corr_treshold=0.2,salient_components=1,length=24*20):
+    def load_correlation_xu_no_sort(self,nb_salient_components=400,salient_components=1,length=24*20):
+        for j in range(0, len(self.device_IDs)):
+            if self.partial_phase_labels[j] == 0:
+                var = np.diff(self.load_features[j, 0:length], salient_components)
+                var_transfo = np.diff(self.load_features_transfo[:, 0:length], salient_components)
+                sal, sal_transfo = self.get_salient_variation_fixed(nb_salient_components, var, var_transfo)
+                if len(sal) > 0 and self.partial_phase_labels[j] == 0:
+                    phase, corr = self.find_phase(sal, sal_transfo)
+                    self.sub_load_profile(j, phase)
+        acc = self.accuracy()
+        print("All devices allocated, accuracy ", acc * 100, "%")
+
+    def load_correlation_xu(self,salient_treshold=0.1,salient_components=1,length=24*20):
         """
-        Implements load correlation algorithm as described by Li et. al.
+        Implements load correlation algorithm as described by Xu et. al.
         Continues to assign devices as long as progress is being made
         """
-        progress = 0.0
-        last_progress = 1.0
-
         self.sort_devices_by_variation()
+        #self.sort_devices_by_nb_salient_components(salient_treshold,salient_components)
+        for j in range(0, len(self.device_IDs)):
+            if self.partial_phase_labels[j] == 0:
+                #plot_load_profile(self.load_features[j,:])
+                var = np.diff(self.load_features[j, 0:length], salient_components)
+                var_transfo = np.diff(self.load_features_transfo[:, 0:length], salient_components)
+                sal, sal_transfo = self.get_salient_variation(salient_treshold, var, var_transfo)
+                if len(sal) > 0:
+                    phase, corr = self.find_phase(sal, sal_transfo)
+                    self.sub_load_profile(j, phase)
+        acc = self.accuracy()
+        print("All devices allocated, accuracy ", acc * 100, "%")
 
-        while progress < 1.0 and last_progress != progress:
-            last_progress = progress
-            progress = self.assign_devices(salient_treshold, corr_treshold,salient_components=salient_components,length=length)
-        self.finish_assign_devices(salient_treshold,salient_components=salient_components,length=length)
+    def load_correlation_xu_fixed(self,nb_salient_components,salient_components=1,length=24*20):
+        """
+        Implements load correlation algorithm as described by Xu et. al.
+        Continues to assign devices as long as progress is being made
+        """
+        self.sort_devices_by_variation()
+        for j in range(0, len(self.device_IDs)):
+            if self.partial_phase_labels[j] == 0:
+                var = np.diff(self.load_features[j, 0:length], salient_components)
+                var_transfo = np.diff(self.load_features_transfo[:, 0:length], salient_components)
+                sal, sal_transfo = self.get_salient_variation_fixed(nb_salient_components, var, var_transfo)
+                if len(sal) > 0:
+                    phase, corr = self.find_phase(sal, sal_transfo)
+                    self.sub_load_profile(j, phase)
+        acc = self.accuracy()
+        print("All devices allocated, accuracy ", acc * 100, "%")
 
     def load_correlation_enhanced_tuning(self,nb_salient_components=10, nb_assignments=10,salient_components=1,length=24*20):
         """
-        Implements load correlation algorithm as described by Li et. al.
+        Implements load correlation algorithm as described by Xu et. al.
         Continues to assign devices as long as progress is being made
         """
         progress = 0.0
@@ -289,6 +344,21 @@ class PartialPhaseIdentification(Feeder):
         except ZeroDivisionError:
             acc = np.nan
         return acc
+
+    def sort_devices_by_nb_salient_components(self,treshold=10,salient_components=1):
+        var = np.diff(self.load_features,salient_components)
+        var_transfo = np.diff(self.load_features_transfo,salient_components)
+        sal, sal_transfo = self.get_salient_variations(treshold, var, var_transfo)
+        nb_sal = np.array([len(i) for i in sal])
+        sort_order = nb_sal.argsort()
+        #sort_order = np.mean(abs(lf_var),axis=1).argsort()
+        i = np.array(self.device_IDs)
+        self.device_IDs = i[sort_order[::-1]]
+        self.load_features = self.load_features[sort_order[::-1]]
+        self.voltage_features = self.voltage_features[sort_order[::-1]]
+        self.phase_labels = np.array(self.phase_labels)[sort_order[::-1]]
+
+
 
 
     def add_noise(self, error=0, data="voltage"):
@@ -336,3 +406,36 @@ class PartialMissingPhaseIdentification(PartialPhaseIdentification):
         except ZeroDivisionError:
             acc = np.nan
         return acc
+
+def plot_salient_comp(var,sal,ind):
+    plt.figure(figsize=(8,3))
+    x = np.arange(0, len(var))
+    plt.plot(x,var*500,label="customer power consumption")
+    plt.scatter(x[ind],sal*500,color='red',label='Salient component')
+    plt.xlabel("Time step (h)",fontsize=14)
+    plt.ylabel("Power (Kwh)",fontsize=14)
+    plt.xlim([0,7*24])
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+
+def plot_load_profile(power):
+    plt.figure(figsize=(8,3))
+    x = np.arange(0, len(power))
+    plt.plot(x,power*500,label="customer power consumption")
+    plt.xlabel("Time step (h)",fontsize=14)
+    plt.ylabel("Power (Kwh)",fontsize=14)
+    plt.xlim([0,7*24])
+    plt.tight_layout()
+    plt.legend()
+    plt.show()
+
+def plot_transfo_profile(power):
+    plt.figure(figsize=(8,3))
+    x = np.arange(0, len(power))
+    plt.plot(x,power*500,label="Transfo power consumption")
+    plt.xlabel("Time step (h)",fontsize=14)
+    plt.ylabel("Power (Kwh)",fontsize=14)
+    plt.xlim([0,7*24])
+    plt.tight_layout()
+    plt.show()
