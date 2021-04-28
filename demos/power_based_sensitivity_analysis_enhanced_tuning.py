@@ -16,10 +16,10 @@ I can improve this by making shure an additional 10 of missing is added in stead
 #################################################
 """
 
-included_feeders = ["86315_785383", "65028_84566", "1076069_1274129", "1351982_1596442", "65025_80035", "1076069_1274125"]
-cases = ["Case A","Case B","Case C","Case D","Case E","Case F"]
+included_feeders = ["86315_785383", "1076069_1274129", "1351982_1596442", "65025_80035"]
+cases = ["Case A","Case C","Case D","Case E",]
 include_three_phase = True
-length = 24*20
+length = 48*360
 salient_components = 1
 reps = 1
 accuracy = 0.1
@@ -29,7 +29,7 @@ for case, feeder_id in enumerate(included_feeders):
     acc_class_range = np.array([0.1,0.2,0.5,1.0,0.2,0.5])
     #voltage_pen_range = np.array([0.1])
     s_range = [False,False,False,False,True,True]
-    sal_treshold_range = list(range(4,482,5))
+    sal_treshold_range = list(range(4,48*360,48))
     tot_scores = np.zeros([len(acc_class_range), len(sal_treshold_range)])
 
     for rep in range(0,reps):
