@@ -166,6 +166,9 @@ class Feeder(object):
     def plot_load_profiles(self, ylabel="Power (kW)", length=48):
         return self.plot_data(self.load_features * 500, ylabel, length)
 
+    def plot_load_profiles_transfo(self, ylabel="Power (kW)", length=48):
+        return self.plot_data(self.load_features_transfo * 500, ylabel, length)
+
     def change_data_representation(self, representation="delta", data="voltage", inplace=True):
         """
         Changes the data representation from raw to delta or binary
