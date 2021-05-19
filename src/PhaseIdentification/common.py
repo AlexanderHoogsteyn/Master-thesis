@@ -45,7 +45,7 @@ class Feeder(object):
     such as list of the features used and the ID's of the feeders.
     """
 
-    def __init__(self, feederID='65019_74469', include_three_phase=False,error_class=ErrorClass(0)):
+    def __init__(self, feederID='65019_74469', include_three_phase=False,error_class=ErrorClass(0),data="POLA_data/"):
         """
         Initialize the feeder object by reading out the data from JSON files in the specified directory.
         feederID = full identification number of the feeder
@@ -56,7 +56,7 @@ class Feeder(object):
         """
         features = []
         dir = os.path.dirname(os.path.realpath(__file__))
-        self._path_data = os.path.join(dir, "../../data/DUBLIN_data/")
+        self._path_data = os.path.join(dir, "../../data/"+data)
         self._path_topology = os.path.join(dir, "../../data/POLA/")
         self.feederID = feederID
 
@@ -287,3 +287,10 @@ class Feeder(object):
         lf_b = np.array([lf[i]/lf_transfo[1] for i in range(0,len(lf))])
         lf_c = np.array([lf[i]/lf_transfo[2] for i in range(0,len(lf))])
         return np.concatenate([lf_a, lf_b, lf_c], axis=1)
+
+    def get_mav_imbalance(self):
+        mean_ref = np.mean(self.voltage_features_transfo)
+        mav_imbalance = []
+        for voltage_profile in self.voltage_features:
+            mav_imbalance.append(np.mean(abs(voltage_profile/mean_ref - 1)))
+        return np.array(mav_imbalance)*100

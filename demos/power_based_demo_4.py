@@ -14,13 +14,14 @@ Accuracy accros differnt classes of SM
 """
 
 include_three_phase = True
-length = 24*20
+length = 48*30
 volt_assist = 0.9
 reps = 1
 
 #"1132967_1400879" only has 3 customers
 # 'Case D'
 included_feeders = ["86315_785383", "65028_84566", "1076069_1274129","1351982_1596442", "65025_80035", "1076069_1274125"]
+
 results = []
 for accuracy in [0.1, 0.2, 0.5, 1.0]:
     class_results = []

@@ -41,6 +41,7 @@ acc = 0
 for feeder_id in included_feeders:
     for rep in np.arange(reps):
         feeder = Feeder(feederID=feeder_id, include_three_phase=include_three_phase)
+        feeder.change_data_representation("delta")
         feeder.set_sm_pentration(0.8)
         phase_identification = PhaseIdentification(feeder, ErrorClass(accuracy, s=False))
         phase_identification.k_means_clustering(length=length,n_repeats=3)
@@ -55,6 +56,7 @@ acc = 0
 for feeder_id in included_feeders:
     for rep in np.arange(reps):
         feeder = Feeder(feederID=feeder_id, include_three_phase=include_three_phase)
+        feeder.change_data_representation("delta")
         feeder.set_sm_pentration(0.8)
         phase_identification = PhaseIdentification(feeder, ErrorClass(accuracy, s=False))
         phase_identification.k_means_clustering(length=length,n_repeats=3)
@@ -69,6 +71,7 @@ acc = 0
 for feeder_id in included_feeders:
     for rep in np.arange(reps):
         feeder = Feeder(feederID=feeder_id, include_three_phase=include_three_phase)
+        feeder.change_data_representation("delta")
         feeder.set_sm_pentration(0.8)
         phase_identification = PhaseIdentification(feeder, ErrorClass(accuracy, s=False))
         phase_identification.k_means_clustering(length=length,n_repeats=3)
@@ -83,6 +86,7 @@ acc = 0
 for feeder_id in included_feeders:
     for rep in np.arange(reps):
         feeder = Feeder(feederID=feeder_id, include_three_phase=include_three_phase)
+        feeder.change_data_representation("delta")
         feeder.set_sm_pentration(0.8)
         phase_identification = PhaseIdentification(feeder, ErrorClass(accuracy, s=False))
         phase_identification.k_means_clustering(length=length,n_repeats=3)
@@ -98,6 +102,7 @@ length = int(14*24/2)
 for feeder_id in included_feeders:
     for rep in np.arange(reps):
         feeder = Feeder(feederID=feeder_id, include_three_phase=include_three_phase)
+        feeder.change_data_representation("delta")
         feeder.set_sm_pentration(0.8)
         feeder.lower_data_resolution(2)
         phase_identification = PhaseIdentification(feeder, ErrorClass(accuracy, s=False))
@@ -112,6 +117,7 @@ acc = 0
 for feeder_id in included_feeders:
     for rep in np.arange(reps):
         feeder = Feeder(feederID=feeder_id, include_three_phase=include_three_phase)
+        feeder.change_data_representation("delta")
         feeder.set_sm_pentration(0.8)
         feeder.lower_data_resolution(3)
         phase_identification = PhaseIdentification(feeder, ErrorClass(accuracy, s=False))
@@ -126,6 +132,7 @@ length = int(14*24)
 for feeder_id in included_feeders:
     for rep in np.arange(reps):
         feeder = Feeder(feederID=feeder_id, include_three_phase=include_three_phase)
+        feeder.change_data_representation("delta")
         feeder.set_sm_pentration(0.9)
         phase_identification = PhaseIdentification(feeder, ErrorClass(accuracy, s=False))
         phase_identification.k_means_clustering(length=length,n_repeats=3)
@@ -138,6 +145,7 @@ acc = 0
 for feeder_id in included_feeders:
     for rep in np.arange(reps):
         feeder = Feeder(feederID=feeder_id, include_three_phase=include_three_phase)
+        feeder.change_data_representation("delta")
         feeder.set_sm_pentration(0.7)
         phase_identification = PhaseIdentification(feeder, ErrorClass(accuracy, s=False))
         phase_identification.k_means_clustering(length=length,n_repeats=3)
@@ -150,6 +158,7 @@ acc = 0
 for feeder_id in included_feeders:
     for rep in np.arange(reps):
         feeder = Feeder(feederID=feeder_id, include_three_phase=include_three_phase)
+        feeder.change_data_representation("delta")
         phase_identification = PhaseIdentification(feeder, ErrorClass(accuracy, s=False))
         phase_identification.k_means_clustering(length=length,n_repeats=3)
         #phase_identification.load_correlation_enhanced_tuning(nb_salient_components=nb_salient_components, nb_assignments=nb_assignments, salient_components=salient_components, length=24*20)
@@ -161,6 +170,7 @@ acc = 0
 for feeder_id in included_feeders:
     for rep in np.arange(reps):
         feeder = Feeder(feederID=feeder_id, include_three_phase=include_three_phase)
+        feeder.change_data_representation("delta")
         feeder.set_sm_pentration(0.6)
         phase_identification = PhaseIdentification(feeder, ErrorClass(accuracy, s=False))
         phase_identification.k_means_clustering(length=length,n_repeats=3)

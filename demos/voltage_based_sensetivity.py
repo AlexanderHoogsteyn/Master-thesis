@@ -20,7 +20,7 @@ included_feeders = ["86315_785383", "65028_84566", "1076069_1274129", "1351982_1
 reps = 100
 include_three_phase = True
 base_length = 14*24
-accuracy = 1.0
+accuracy = 0.1
 class_results = []
 acc = 0.0
 for feeder_id in included_feeders:

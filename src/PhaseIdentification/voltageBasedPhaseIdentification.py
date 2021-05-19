@@ -4,6 +4,7 @@ from sklearn_extra.cluster import KMedoids
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import silhouette_samples, silhouette_score
 from sklearn.mixture import GaussianMixture
+import seaborn as sns
 
 class PhaseIdentification(Feeder):
     """
@@ -190,7 +191,7 @@ class PhaseIdentification(Feeder):
         self._n_repeats = 1
         self.partial_phase_labels = phase_labels
 
-    def voltage_correlation_transfo_ref(self,length=24*20):
+    def voltage_correlation_transfo_ref(self,length=24*20, min_corr=-np.inf):
         """
         Voltage correlation method that perform phase identification using collected voltage data of the reference transformer
         """
@@ -200,25 +201,54 @@ class PhaseIdentification(Feeder):
         phase_labels = []
         scores = []
         for device in self.voltage_features:
-            corr = -np.inf
+            corr = min_corr
             label = 0
             for phase in range(0, 3):
                 std_transfo = np.std(profiles[phase][0:length])
                 std_customer = np.std(device[0:length])
                 n_corr = sum((profiles[phase][0:length] - np.mean(profiles[phase][0:length])) * (device[0:length] - np.mean(device[0:length]))) \
                          / (std_transfo * std_customer)
-                if n_corr > corr:
+                if n_corr >= corr:
                     corr = n_corr
                     label = labels[phase]
             phase_labels += [label]
             scores += [corr]
             if label == 0:
-                print('Phase could not be allocated, Corr: ', corr, ' std transfo: ',std_transfo,' std consumer: ',std_customer)
+                print('Phase could not be allocated, Corr: ', n_corr, ' std transfo: ',std_transfo,' std consumer: ',std_customer)
 
         self._algorithm = 'voltage_correlation'
         self._n_repeats = 1
         self.partial_phase_labels = phase_labels
         self._algorithm = 'Voltage correlation with transformer ref'
+
+    def plot_voltage_correlation_transfo_ref(self,length=24*20, min_corr=-np.inf):
+        """
+        Voltage correlation method that perform phase identification using collected voltage data of the reference transformer
+        """
+        labels = [1,2,3]
+        profiles = self.voltage_features_transfo
+
+        phase_labels = []
+        scores = []
+        for device in self.voltage_features:
+            corr = []
+            label = 0
+            for phase in range(0, 3):
+                std_transfo = np.std(profiles[phase][0:length])
+                std_customer = np.std(device[0:length])
+                corr += [sum((profiles[phase][0:length] - np.mean(profiles[phase][0:length])) * (device[0:length] - np.mean(device[0:length]))) \
+                         / (std_transfo * std_customer)]
+
+            phase_labels += [np.argmax(corr)+1]
+            scores.append(np.sort(corr))
+        scores = np.array(scores)
+
+        self._algorithm = 'voltage_correlation'
+        self._n_repeats = 1
+        self.partial_phase_labels = phase_labels
+        self._algorithm = 'Voltage correlation with transformer ref'
+        return scores
+
 
     def accuracy(self):
         correct_labels = self.partial_phase_labels

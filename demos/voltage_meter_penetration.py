@@ -22,13 +22,13 @@ I can improve this by making shure an additional 10 of missing is added in stead
 included_feeders = ["86315_785383", "65028_84566", "1076069_1274129", "1351982_1596442", "65025_80035", "1076069_1274125"]
 cases = ["Case A","Case B","Case C","Case D","Case E","Case F"]
 include_three_phase = True
-length = 24*14
+length = 24*20
 salient_components = 0
-reps = 100
-accuracy = 1.0
-s = False
+reps = 1
+accuracy = 0.5
+s = True
 sal_treshold = 10
-nb_salient_components = int(length*0.8)
+nb_salient_components = int(length*0.98)
 
 for case, feeder_id in enumerate(included_feeders):
     voltage_pen_range = np.arange(0, 1.1, 0.1)
@@ -61,7 +61,6 @@ for case, feeder_id in enumerate(included_feeders):
     # Plot
     plt.figure(figsize=(8, 6), dpi=80)
     x = voltage_pen_range
-    #x = ["Class 0.1"]
     for i, c in enumerate(["voltage Pearson correlation","power voltage conform method","power Pearson correlation "]):
         plt.plot(x, tot_scores[i]*100, label=c)
 

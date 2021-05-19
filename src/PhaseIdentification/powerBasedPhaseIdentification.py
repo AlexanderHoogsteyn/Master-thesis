@@ -32,19 +32,19 @@ class PartialPhaseIdentification(Feeder):
 
 
 
-    def sub_load_profile(self,j,phase):
+    def sub_load_profile(self,j,phase,loss_factor=1):
         """
         Subtracts the load profile from the total and assigns a phase label "phase" to device on index "j"
         """
         if phase == 1 or phase == 2 or phase == 3:
-            self.load_features_transfo[phase - 1] -= self.load_features[j]
+            self.load_features_transfo[phase - 1] -= loss_factor*self.load_features[j]
             self.partial_phase_labels[j] = phase
         elif phase == 5:
             # If i marked as customer without meter (phase==5)
             # do not allocate yet
             self.partial_phase_labels[j] = 0
         else:
-            self.partial_phase_labels[j] = 4
+            self.partial_phase_labels[j] = 0
 
     def get_salient_variations(self, treshold, var, var_transfo):
         """
@@ -279,7 +279,7 @@ class PartialPhaseIdentification(Feeder):
                 var = np.diff(self.load_features[j, 0:length], salient_components)
                 var_transfo = np.diff(self.load_features_transfo[:, 0:length], salient_components)
                 sal, sal_transfo = self.get_salient_variation_fixed(nb_salient_components, var, var_transfo)
-                if len(sal) > 0 and self.partial_phase_labels[j] == 0:
+                if len(sal) > 0:
                     phase, corr = self.find_phase(sal, sal_transfo)
                     self.sub_load_profile(j, phase)
         acc = self.accuracy()
@@ -378,8 +378,8 @@ class PartialPhaseIdentification(Feeder):
 
 
 class PartialMissingPhaseIdentification(PartialPhaseIdentification):
-    def __init__(self, feederID = '65019_74469', include_three_phase = False, measurement_error = 0.0, length = 24, missing_ratio = 0.0):
-        PartialPhaseIdentification.__init__(self, feederID, include_three_phase, measurement_error=measurement_error, length=length)
+    def __init__(self, feeder, include_three_phase = False, measurement_error = 0.0, length = 24, missing_ratio = 0.0):
+        self.__dict__ = feeder.__dict__.copy()
         self.nb_missing = 0
         for col in self.load_features:
             if sum(col) == 0:
@@ -387,25 +387,25 @@ class PartialMissingPhaseIdentification(PartialPhaseIdentification):
         nb_to_add = round(len(self.phase_labels)*missing_ratio) - self.nb_missing
 
         while nb_to_add > 0:
-            self.load_features[random.randint(0, len(self.phase_labels) - 1)] = np.zeros(self.length)
+            self.load_features[random.randint(0, len(self.phase_labels) - 1)] = np.zeros(len(self.phase_labels))
             nb_to_add -= 1
 
     def add_missing(self,ratio):
         nb = round(len(self.phase_labels)*ratio)
         raise NotImplementedError
 
-    def accuracy(self):
-        if len(self.partial_phase_labels) != len(self.phase_labels):
-            raise IndexError("Phase labels not of same length")
-        c = 0.0
-        for i in range(0, len(self.partial_phase_labels)):
-            if self.partial_phase_labels[i] == self.phase_labels[i]:
-                c = c + 1.0
-        try:
-            acc = c / (len(self.phase_labels)-len(self.missing))
-        except ZeroDivisionError:
-            acc = np.nan
-        return acc
+    # def accuracy(self):
+    #     if len(self.partial_phase_labels) != len(self.phase_labels):
+    #         raise IndexError("Phase labels not of same length")
+    #     c = 0.0
+    #     for i in range(0, len(self.partial_phase_labels)):
+    #         if self.partial_phase_labels[i] == self.phase_labels[i]:
+    #             c = c + 1.0
+    #     try:
+    #         acc = c / (len(self.phase_labels)-len(self.nb_missing))
+    #     except ZeroDivisionError:
+    #         acc = np.nan
+    #     return acc
 
 def plot_salient_comp(var,sal,ind):
     plt.figure(figsize=(8,3))

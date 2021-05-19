@@ -100,82 +100,6 @@ class IntegratedPhaseIdentification(PartialPhaseIdentification):
                 C = CorrelationCoeficients(self)
                 C.visualize_correlation_all()
 
-    def find_phase(self, sal_volt, sal_transfo_volt, sal_load, sal_transfo_load, volt_assist=0):
-        """
-        Chooses phase with highest correlation to device j,
-        based on it's salient factors sal (and the indexes therof sal_i
-        """
-        load_invalid = False
-        voltage_invalid = False
-
-        if len(sal_volt) + len(sal_load) == 0:
-            raise AssertionError("No salient components found")
-        elif len(sal_volt) < 3 and len(sal_load) < 3:
-            best_corr = -np.inf
-            for phase in range(0, 3):
-                corr = sal_load[0] / sal_transfo_load[phase][0]
-                if corr > best_corr:
-                    best_corr = corr
-                    best_phase = phase + 1
-        else:
-            mean_sal_volt = np.mean(sal_volt)
-            mean_sal_load = np.mean(sal_load)
-            std_sal_volt = np.std(sal_volt)
-            std_sal_load = np.std(sal_load)
-            if std_sal_load == 0:
-                load_invalid = True
-            if std_sal_volt == 0:
-                voltage_invalid = True
-
-            best_phase = 0
-            best_corr = -np.inf
-
-            for phase in range(0, 3):
-                sal_phase_volt = sal_transfo_volt[phase]
-                mean_sal_phase_volt = np.mean(sal_phase_volt)
-                std_sal_phase_volt = np.std(sal_phase_volt)
-                if std_sal_phase_volt == 0 or len(sal_volt) == 0:
-                    voltage_invalid = True
-
-                try:
-                    corr_volt = 1.0 / (len(sal_volt) - 1) * sum(
-                        (sal_volt - mean_sal_volt) * (sal_phase_volt - mean_sal_phase_volt)) \
-                                / (std_sal_volt * std_sal_phase_volt)
-                except ZeroDivisionError:
-                    corr_volt = np.nan
-                    voltage_invalid = True
-
-                sal_phase_load = sal_transfo_load[phase]
-                mean_sal_phase_load = np.mean(sal_phase_load)
-                std_sal_phase_load = np.std(sal_phase_volt)
-                if std_sal_phase_load == 0 or len(sal_load) == 0:
-                    load_invalid = True
-
-                try:
-                    corr_load = 1.0 / (len(sal_load) - 1) * sum(
-                        (sal_load - mean_sal_load) * (sal_phase_load - mean_sal_phase_load)) \
-                                / (std_sal_load * std_sal_phase_load)
-                except ZeroDivisionError:
-                    corr_load = np.nan
-                    load_invalid = True
-
-                if corr_load == np.nan:
-                    corr_load = -np.inf
-                # print(phase, corr_volt)
-                # Combine correlations
-                if load_invalid:
-                    corr = corr_volt
-                elif voltage_invalid:
-                    corr = corr_load
-                else:
-                    corr = (1 - volt_assist) * corr_load + volt_assist * corr_volt
-                if corr > best_corr:
-                    best_corr = corr
-                    best_phase = phase + 1
-                # print(corr, " ", best_corr, " ", sal[j])
-        # print("Phase label: ", best_phase, "load corr ", corr_load, load_invalid, "voltage corr ", corr_volt, voltage_invalid)
-        return best_phase, best_corr
-
 
 class IntegratedMissingPhaseIdentification(IntegratedPhaseIdentification):
     def __init__(self, feeder, error_class=ErrorClass(0)):
@@ -236,12 +160,49 @@ def power_voltage_conform_method(feeder, length=24*20, salient_components=1,nb_s
     print("Combined method accuracy: ", acc_combined)
     return acc_combined
 
-def voltage_assisted_power_based_method(feeder,length=24*20, salient_components=1,nb_salient_components=400,voltage_meter_penetration=1,select_biggest=False):
+def boost_voltage_with_power(feeder,length=24*20,volt_length=24*20, salient_components=1,nb_salient_components=400,voltage_meter_penetration=1,select_biggest=False, min_corr=-np.inf,var_filter=False):
+    nb_devices = len(feeder.device_IDs)
+    feeder.sort_devices_by_variation()
+    feeder_load = copy.deepcopy(feeder)
+    phase_identification_volt = PhaseIdentification(feeder)
+    phase_identification_volt.voltage_correlation_transfo_ref(length=volt_length, min_corr=min_corr)
+
+    if select_biggest==False:
+        meters_without_voltage_data = np.sort(
+            np.random.choice(nb_devices, int(nb_devices * (1 - voltage_meter_penetration)), replace=False))
+        phase_labels_volt = np.array(phase_identification_volt.partial_phase_labels)
+        phase_labels_volt[meters_without_voltage_data] = 0
+    else:
+        number = int(nb_devices * (1 - voltage_meter_penetration))
+        total_load = np.sum(feeder.load_features, axis=1)
+        phase_labels_volt = np.array(phase_identification_volt.partial_phase_labels)
+        if number == len(total_load):
+            phase_labels_volt = np.array([0]*number)
+        elif number != 0:
+            meters_without_voltage_data = np.argpartition(total_load, number)[:number]
+            phase_labels_volt[meters_without_voltage_data] = 0
+
+    if var_filter == True:
+        phase_labels_volt[phase_identification_volt.get_mav_imbalance()<0.02] = 0
+
+    phase_identification_load = PartialPhaseIdentification(feeder_load)
+    for i, phase in enumerate(phase_labels_volt):
+        phase_identification_load.sub_load_profile(i,int(phase),loss_factor=0.9)
+
+    phase_identification_load.load_correlation_xu_no_sort(nb_salient_components=nb_salient_components,
+                                                              salient_components=salient_components, length=length)
+    acc_combined = phase_identification_load.accuracy()
+    print("Combined method accuracy: ", acc_combined)
+    return acc_combined
+
+def power_and_voltage_bagging(feeder,length=24*20, volt_length=24*20, salient_components=1,nb_salient_components=400,voltage_meter_penetration=1,select_biggest=False, min_corr=-np.inf,var_filter=False):
     nb_devices = len(feeder.device_IDs)
     feeder_load = copy.deepcopy(feeder)
     phase_identification_volt = PhaseIdentification(feeder)
     phase_identification_volt.sort_devices_by_variation()
-    phase_identification_volt.voltage_correlation_transfo_ref(length=length)
+    phase_identification_volt.voltage_correlation_transfo_ref(length=volt_length, min_corr=min_corr)
+
+
     nb_devices = len(phase_identification_volt.partial_phase_labels)
     if select_biggest==False:
         meters_without_voltage_data = np.sort(
@@ -258,14 +219,44 @@ def voltage_assisted_power_based_method(feeder,length=24*20, salient_components=
             meters_without_voltage_data = np.argpartition(total_load, number)[:number]
             phase_labels_volt[meters_without_voltage_data] = 5
 
+    if var_filter == True:
+        phase_labels_volt[phase_identification_volt.get_mav_imbalance()<0.2] = 0
+    phase_identification_volt.partial_phase_labels = phase_labels_volt
 
     phase_identification_load = PartialPhaseIdentification(feeder_load)
     phase_identification_load.sort_devices_by_variation()
-    for i, phase in enumerate(phase_labels_volt):
-        phase_identification_load.sub_load_profile(i,int(phase))
-
     phase_identification_load.load_correlation_xu_no_sort(nb_salient_components=nb_salient_components,
                                                               salient_components=salient_components, length=length)
-    acc_combined = phase_identification_load.accuracy()
+    phase_identification_volt.partial_phase_labels[phase_labels_volt == 5] = phase_identification_load.partial_phase_labels[phase_labels_volt == 5]
+
+    acc_combined = phase_identification_volt.accuracy()
     print("Combined method accuracy: ", acc_combined)
     return acc_combined
+
+def boost_power_with_voltage(feeder_1, length=24*20,salient_components=1,nb_salient_components=400,power_treshold=10,voltage_meter_penetration=1):
+    feeder = PartialPhaseIdentification(feeder_1)
+    feeder.sort_devices_by_variation()
+    for j in range(0, len(feeder.device_IDs)):
+        if feeder.partial_phase_labels[j] == 0:
+            var = np.diff(feeder.load_features[j, 0:length], salient_components)
+            var_transfo = np.diff(feeder.load_features_transfo[:, 0:length], salient_components)
+            sal, sal_transfo = feeder.get_salient_variation_fixed(nb_salient_components, var, var_transfo)
+            if len(sal) > 0:
+                phase, corr_diff = feeder.improved_find_phase(sal, sal_transfo)
+                if corr_diff > power_treshold:
+                    feeder.sub_load_profile(j, phase)
+
+    feeder_2 = PhaseIdentification(feeder_1)
+
+    feeder_2.voltage_correlation_transfo_ref(length=length)
+
+    nb_devices = len(feeder_2.partial_phase_labels)
+    meters_without_voltage_data = np.sort(
+        np.random.choice(nb_devices, int(nb_devices * (1 - voltage_meter_penetration)), replace=False))
+    phase_labels_volt = np.array(feeder_2.partial_phase_labels)
+    phase_labels_volt[meters_without_voltage_data] = 0
+
+
+    acc = feeder.accuracy()
+    print("All devices allocated, accuracy ", acc * 100, "%")
+    return acc
